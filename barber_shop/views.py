@@ -10,7 +10,10 @@ import sentry_sdk
 
 from datetime import datetime
 
+from utils import send_email
+
 from barbershop.permissions import PermissionBarber
+from users.models import UserProfile
 from .serializers import CompanysSerializers, SchedulesSerializer
 from .models import Company, Schedules
 
@@ -133,6 +136,11 @@ class SchedulesViewset(ModelViewSet):
                 chosen_barber_id=data['chosen_barber_id'],
                 confirmed_by_barber=data['confirmed_by_barber']
             )
+            instance = UserProfile.objects.get(id=data['chosen_barber_id'])
+            subject = 'Barbershop'
+            message = f'O client {user} fez um novo agendamento'
+            send_email(instance.email, subject, message)
+
             return Response({'message': 'Agendamento feito com sucesso'}, status=status.HTTP_200_OK)
         except Exception as error:
             sentry_sdk.capture_exception(error)
