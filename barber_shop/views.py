@@ -127,18 +127,21 @@ class SchedulesViewset(ModelViewSet):
     def schedule_cut(self, request):
         user = request.user
         data = request.data
+        barber_id = data['chosen_barber_id']
         try:
             data_str = data['date']
             data_obj = datetime.strptime(data_str, '%d/%m/%Y %H:%M')
             Schedules.objects.create(
                 client_id=user.id,
                 date=data_obj,
-                chosen_barber_id=data['chosen_barber_id'],
+                chosen_barber_id=barber_id,
                 confirmed_by_barber=data['confirmed_by_barber']
             )
-            instance = UserProfile.objects.get(id=data['chosen_barber_id'])
-            subject = 'Barbershop'
-            message = f'O client {user} fez um novo agendamento'
+
+            date_msg = datetime.strftime(data_obj, '%d/%m/%Y às %H:%M')
+            instance = UserProfile.objects.get(pk=barber_id)
+            subject = 'BarberShop'
+            message = f'O cliente {user} fez um novo agendamento para o dia {date_msg}'
             send_email(instance.email, subject, message)
 
             return Response({'message': 'Agendamento feito com sucesso'}, status=status.HTTP_200_OK)
