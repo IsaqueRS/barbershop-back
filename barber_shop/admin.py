@@ -1,15 +1,19 @@
 from django.contrib import admin
-from .models import Company, Schedules
+from .models import Company, Schedules, Days
 from django import forms
+
+
+class Daysinline(admin.TabularInline):
+    model = Days
+    fields = ['day', 'hours_business']
 
 
 class CompanyAdmin(admin.ModelAdmin):
     fieldsets = (
          ('Informações de Contato', {'fields': ('owner', 'employees', 'name', 'phone', 'instagram_link', 'facebook_link')}),
          ('Informações de Endereço', {'fields': ('cep', 'state', 'city', 'neighborhood', 'street')}),
-         ('Horário', {'fields': ('opening_hours',)}),
                  )
-
+    inlines = [Daysinline]
     filter_horizontal = ['owner', 'employees']
 
 
