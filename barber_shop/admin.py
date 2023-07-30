@@ -3,9 +3,9 @@ from .models import Company, Schedules, Days
 from django import forms
 
 
-class Daysinline(admin.TabularInline):
+class DaysInline(admin.StackedInline):
     model = Days
-    fields = ['day', 'hours_business']
+    fields = ['day', 'start', 'end_time', 'pause_time']
 
 
 class CompanyAdmin(admin.ModelAdmin):
@@ -13,7 +13,9 @@ class CompanyAdmin(admin.ModelAdmin):
          ('Informações de Contato', {'fields': ('owner', 'employees', 'name', 'phone', 'instagram_link', 'facebook_link')}),
          ('Informações de Endereço', {'fields': ('cep', 'state', 'city', 'neighborhood', 'street')}),
                  )
-    inlines = [Daysinline]
+    inlines = [
+        DaysInline
+    ]
     filter_horizontal = ['owner', 'employees']
 
 
