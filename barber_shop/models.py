@@ -41,6 +41,7 @@ class Company(models.Model):
 
 
 class Schedules(models.Model):
+    barbershop = models.ForeignKey(Company, verbose_name='Barbearia', on_delete=models.PROTECT)
     client = models.ForeignKey('users.UserProfile', verbose_name='Cliente', related_name='client_schedules', on_delete=models.CASCADE)
     date = models.DateTimeField('Horário agendado')
     chosen_barber = models.ForeignKey('users.UserProfile', verbose_name='Barbeiro escolhido pelo cliente', related_name='client_chosen_barber', on_delete=models.CASCADE, null=True)
