@@ -5,7 +5,7 @@ from django import forms
 
 class DaysInline(admin.StackedInline):
     model = Days
-    fields = ['day', 'start', 'end_time', 'pause_time']
+    fields = ['day', 'start', 'end_time', 'pause_time', 'end_pause_time']
 
 
 class CompanyAdmin(admin.ModelAdmin):
