@@ -189,7 +189,6 @@ class SchedulesViewset(ModelViewSet):
     def schedule_cut(self, request):
         user = request.user
         data = request.data
-        barber_id = data['chosen_barber_id']
         try:
             data_str = data['date']
             data_obj = datetime.strptime(data_str, '%d/%m/%Y %H:%M')
@@ -197,7 +196,7 @@ class SchedulesViewset(ModelViewSet):
                 barbershop_id=data['barbershop_id'],
                 client_id=user.id,
                 date=data_obj,
-                chosen_barber_id=barber_id,
+                chosen_barber_id=data['chosen_barber_id'],
                 confirmed_by_barber=data['confirmed_by_barber']
             )
 
