@@ -127,12 +127,15 @@ class CompanysViewSet(ModelViewSet):
             data_str_end = datetime.strptime(data_end, '%H:%M')
             data_pause = data['pause_time']
             data_str_pause = datetime.strptime(data_pause, '%H:%M')
+            data_end_pause = data['end_pause_time']
+            data_str_end_pause = datetime.strptime(data_end_pause, '%H:%M')
             Days.objects.create(
                 company_id=data['id'],
                 day=data['day'],
                 start=data_obj,
                 end=data_str_end,
-                pause_time=data_str_pause
+                pause_time=data_str_pause,
+                end_pause_time=data_str_end_pause
             )
             return Response({'message': 'Dia registrado com sucesso'}, status=status.HTTP_200_OK)
         except Exception as error:
@@ -149,12 +152,15 @@ class CompanysViewSet(ModelViewSet):
             data_str_end = datetime.strptime(data_end, '%H:%M')
             data_pause = data['pause_time']
             data_str_pause = datetime.strptime(data_pause, '%H:%M')
+            data_end_pause = data['end_pause_time']
+            data_str_end_pause = datetime.strptime(data_end_pause, '%H:%M')
             day = Days.objects.get(pk=data['day_id'])
             day.company_id = data['company_id']
             day.day = data['day']
             day.start = data_obj
             day.end = data_str_end
             day.pause_time = data_str_pause
+            day.end_pause_time = data_str_end_pause
             day.save()
             return Response({'message': 'Dia atualizado com sucesso'}, status=status.HTTP_200_OK)
         except ObjectDoesNotExist:
@@ -162,7 +168,6 @@ class CompanysViewSet(ModelViewSet):
         except Exception as error:
             sentry_sdk.capture_exception(error)
             return Response({'message': 'Erro ao atualizar dia!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
 
     @action(detail=False, methods=['GET'], permission_classes=[IsAuthenticated])
     def list_days(self, request):
@@ -189,6 +194,7 @@ class SchedulesViewset(ModelViewSet):
             data_str = data['date']
             data_obj = datetime.strptime(data_str, '%d/%m/%Y %H:%M')
             Schedules.objects.create(
+                barbershop_id=data['barbershop_id'],
                 client_id=user.id,
                 date=data_obj,
                 chosen_barber_id=barber_id,
