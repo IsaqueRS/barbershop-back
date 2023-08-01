@@ -14,8 +14,8 @@ from utils import send_email
 
 from barbershop.permissions import PermissionBarber
 from users.models import UserProfile
-from .serializers import CompanysSerializers, SchedulesSerializer
-from .models import Company, Schedules
+from .serializers import CompanysSerializers, SchedulesSerializer, DaysSerializer
+from .models import Company, Schedules, Days
 
 
 class CompanysViewSet(ModelViewSet):
@@ -117,6 +117,63 @@ class CompanysViewSet(ModelViewSet):
             sentry_sdk.capture_exception(error)
             return Response({'message': 'Erro ao buscar por barbearia'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+    @action(detail=False, methods=['POST'], permission_classes=[PermissionBarber])
+    def create_business_day(self, request):
+        data = request.data
+        try:
+            data_str = data['start']
+            data_obj = datetime.strptime(data_str, '%H:%M')
+            data_end = data['end']
+            data_str_end = datetime.strptime(data_end, '%H:%M')
+            data_pause = data['pause_time']
+            data_str_pause = datetime.strptime(data_pause, '%H:%M')
+            Days.objects.create(
+                company_id=data['id'],
+                day=data['day'],
+                start=data_obj,
+                end=data_str_end,
+                pause_time=data_str_pause
+            )
+            return Response({'message': 'Dia registrado com sucesso'}, status=status.HTTP_200_OK)
+        except Exception as error:
+            sentry_sdk.capture_exception(error)
+            return Response({'message': 'Erro ao registrar dia!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['PATCH'], permission_classes=[PermissionBarber])
+    def update_business_day(self, request):
+        data = request.data
+        try:
+            data_str = data['start']
+            data_obj = datetime.strptime(data_str, '%H:%M')
+            data_end = data['end']
+            data_str_end = datetime.strptime(data_end, '%H:%M')
+            data_pause = data['pause_time']
+            data_str_pause = datetime.strptime(data_pause, '%H:%M')
+            day = Days.objects.get(pk=data['day_id'])
+            day.company_id = data['company_id']
+            day.day = data['day']
+            day.start = data_obj
+            day.end = data_str_end
+            day.pause_time = data_str_pause
+            day.save()
+            return Response({'message': 'Dia atualizado com sucesso'}, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
+            return Response({'message': 'Dia não encontrado!'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as error:
+            sentry_sdk.capture_exception(error)
+            return Response({'message': 'Erro ao atualizar dia!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+    @action(detail=False, methods=['GET'], permission_classes=[IsAuthenticated])
+    def list_days(self, request):
+        params = request.query_params
+        try:
+            company_days = Days.objects.filter(company_id=params['company_id'])
+            serializer = DaysSerializer(company_days, many=True)
+            return Response({'message': 'Sucesso', 'company_days': serializer.data}, status=status.HTTP_200_OK)
+        except Exception as error:
+            sentry_sdk.capture_exception(error)
+            return Response({'message': 'Erro ao buscar por barbearia'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class SchedulesViewset(ModelViewSet):
     queryset = Schedules.objects.all()
