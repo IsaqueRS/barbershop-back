@@ -201,7 +201,7 @@ class SchedulesViewset(ModelViewSet):
             )
 
             date_msg = datetime.strftime(data_obj, '%d/%m/%Y às %H:%M')
-            instance = UserProfile.objects.get(pk=barber_id)
+            instance = UserProfile.objects.get(pk=data['chosen_barber_id'])
             subject = 'BarberShop'
             message = f'O cliente {user} fez um novo agendamento para o dia {date_msg}'
             send_email(instance.email, subject, message)
