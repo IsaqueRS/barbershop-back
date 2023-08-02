@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Company, Schedules, Days
+from .models import Company, Schedules, Days, SchedulesDays
 from django import forms
 
 
@@ -39,3 +39,5 @@ class SchedulesAdmin(admin.ModelAdmin):
 
 admin.site.register(Company, CompanyAdmin)
 admin.site.register(Schedules, SchedulesAdmin)
+admin.site.register(SchedulesDays)
+# admin.site.register(Days)

@@ -40,8 +40,25 @@ class Company(models.Model):
         verbose_name_plural = "Barbearias"
 
 
+class Days(models.Model):
+    day = models.CharField('Dias', max_length=50)
+    start = models.TimeField('Horário de inicio', null=True, auto_created=True)
+    end_time = models.TimeField('Horário de encerramento', null=True, auto_created=True)
+    pause_time = models.TimeField('Horário de pausa', blank=True, null=True, help_text='(opcional)')
+    end_pause_time = models.TimeField('Fim da pausa', blank=True, null=True, help_text='(opcional)')
+    company = models.ForeignKey(Company, verbose_name='Barbearia', null=True, blank=True, related_name='company_dat', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return str(self.day)
+
+    class Meta:
+        verbose_name = 'Dia'
+        verbose_name_plural = 'Dias de Funcionamento'
+
+
 class Schedules(models.Model):
     barbershop = models.ForeignKey(Company, verbose_name='Barbearia', on_delete=models.PROTECT)
+    day = models.ForeignKey(Days, verbose_name='Dia', related_name='schedules_days', on_delete=models.PROTECT)
     client = models.ForeignKey('users.UserProfile', verbose_name='Cliente', related_name='client_schedules', on_delete=models.CASCADE)
     date = models.DateTimeField('Horário agendado')
     chosen_barber = models.ForeignKey('users.UserProfile', verbose_name='Barbeiro escolhido pelo cliente', related_name='client_chosen_barber', on_delete=models.CASCADE, null=True)
@@ -55,14 +72,14 @@ class Schedules(models.Model):
         verbose_name_plural = 'Agendamentos'
 
 
-class Days(models.Model):
-    day = models.CharField('Dias', max_length=50)
-    start = models.TimeField('Horário de inicio', null=True, auto_created=True)
-    end_time = models.TimeField('Horário de encerramento', null=True, auto_created=True)
-    pause_time = models.TimeField('Horário de pausa', blank=True, null=True, help_text='(opcional)')
-    end_pause_time = models.TimeField('Fim da pausa', blank=True, null=True, help_text='(opcional)')
-    company = models.ForeignKey(Company, verbose_name='Barbearia', related_name='company_dat', on_delete=models.CASCADE)
+class SchedulesDays(models.Model):
+    day = models.ForeignKey(Days, verbose_name='Dia', related_name='schedule_day', on_delete=models.PROTECT)
+    schedule = models.ForeignKey(Schedules, verbose_name='Agendado por', related_name='schedule', on_delete=models.PROTECT)
+    data = models.DateTimeField('Data')
+
+    def __str__(self):
+        return f"{self.day} - {self.schedule}"
 
     class Meta:
-        verbose_name = 'Dia'
-        verbose_name_plural = 'Dias de Funcionamento'
+        verbose_name = 'Dia agendado'
+        verbose_name_plural = 'Dias agendados'
