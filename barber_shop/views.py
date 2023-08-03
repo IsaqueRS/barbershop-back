@@ -263,7 +263,7 @@ class SchedulesViewset(ModelViewSet):
             sentry_sdk.capture_exception(error)
             return Response({'message': 'Erro ao listar agendamentos'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    @action(detail=False, methods=['GET'], permission_classes=[AllowAny])
+    @action(detail=False, methods=['GET'], permission_classes=[PermissionBarber])
     def schedule_by_id(self, request):
         params = request.query_params
         try:
