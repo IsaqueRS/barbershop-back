@@ -32,12 +32,16 @@ class FormSchedules(forms.ModelForm):
 
 
 class SchedulesAdmin(admin.ModelAdmin):
-    list_display = ['client', 'chosen_barber', 'date', 'confirmed_by_barber']
+    list_display = ['id', 'client', 'chosen_barber', 'date', 'confirmed_by_barber', 'user_canceled']
     list_filter = ['confirmed_by_barber']
     form = FormSchedules
 
 
+class SchedulesDaysAdmin(admin.ModelAdmin):
+    list_display = ['day', 'schedule']
+
+
 admin.site.register(Company, CompanyAdmin)
 admin.site.register(Schedules, SchedulesAdmin)
-admin.site.register(SchedulesDays)
+admin.site.register(SchedulesDays, SchedulesDaysAdmin)
 # admin.site.register(Days)

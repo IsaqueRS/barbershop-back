@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from rest_framework.viewsets import ModelViewSet
+from django.db.models import Q
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
@@ -193,6 +194,12 @@ class SchedulesViewset(ModelViewSet):
         try:
             data_str = data['date']
             data_obj = datetime.strptime(data_str, '%d/%m/%Y %H:%M')
+
+            schedules_existing = SchedulesDays.objects.filter(data=data_obj).exists()
+            if schedules_existing:
+                return Response({'message': 'já existe um agendamento para este horário!'},
+                                status=status.HTTP_400_BAD_REQUEST)
+
             schedule = Schedules.objects.create(
                 barbershop_id=data['barbershop_id'],
                 client_id=user.id,
@@ -230,15 +237,15 @@ class SchedulesViewset(ModelViewSet):
             schedule.date = data_obj
             schedule.chosen_barber_id = data['chosen_barber_id']
             schedule.confirmed_by_barber = data['confirmed_by_barber']
+            schedule.save()
 
             schedule_day = SchedulesDays.objects.filter()
             schedule_day.day_id = data['day_id'],
             schedule_day.schedule_id = schedule.id,
             schedule_day.data = data_obj
             schedule_day.save()
-            schedule.save()
 
-            return Response({'message': 'Agendamento feito com sucesso'}, status=status.HTTP_200_OK)
+            return Response({'message': 'Agendamento atualizado com sucesso'}, status=status.HTTP_200_OK)
         except ObjectDoesNotExist:
             return Response({'message': 'Barbearia encontrada'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as error:
@@ -319,3 +326,25 @@ class SchedulesViewset(ModelViewSet):
             sentry_sdk.capture_exception(error)
             return Response({'message': 'Erro ao confirmar o agendamento'},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['PUT'], permission_classes=[IsAuthenticated])
+    def canceled_by_user(self, request):
+        data = request.data
+        user = request.user
+        try:
+            schedule = Schedules.objects.get(pk=data['schedule_id'])
+            schedule.user_canceled = data['user_canceled']
+
+            if user != schedule.client:
+                return Response({'message': 'Apenas o próprio usuário pode cancelar este agendamento'},
+                                status=status.HTTP_401_UNAUTHORIZED)
+
+            if data['user_canceled'] == False:
+                return Response({'message': 'Voce não pode fazer está ação, tente remarcar um novo um agendamento'},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+            schedule.save()
+            return Response({'message': 'Cancelamento feito com sucesso'}, status=status.HTTP_200_OK)
+        except Exception as error:
+            sentry_sdk.capture_exception(error)
+            return Response({'Response': 'Erro ao cancelar seu agendamento'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
