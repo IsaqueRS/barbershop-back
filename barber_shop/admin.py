@@ -17,6 +17,7 @@ class CompanyAdmin(admin.ModelAdmin):
         DaysInline
     ]
     filter_horizontal = ['owner', 'employees']
+    list_display = ['id', 'name']
 
 
 class FormSchedules(forms.ModelForm):
@@ -25,7 +26,6 @@ class FormSchedules(forms.ModelForm):
 
         request = self.Meta.formfield_callback.keywords['request']
         user = request.user
-        print(user.type)
         if user.type == 'barbeiro' or user.type == 'desenvolvedor_dono':
             self.fields['confirmed_by_barber'].disabled = False
             self.fields['user_canceled'].disabled = False
