@@ -118,7 +118,7 @@ class CompanysViewSet(ModelViewSet):
             sentry_sdk.capture_exception(error)
             return Response({'message': 'Erro ao buscar por barbearia'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    @action(detail=False, methods=['POST'], permission_classes=[PermissionBarber])
+    @action(detail=False, methods=['POST'], permission_classes=[IsAuthenticated])
     def create_business_day(self, request):
         data = request.data
         try:
@@ -126,21 +126,30 @@ class CompanysViewSet(ModelViewSet):
             data_obj = datetime.strptime(data_str, '%H:%M')
             data_end = data['end']
             data_str_end = datetime.strptime(data_end, '%H:%M')
-            data_pause = data['pause_time']
-            data_str_pause = datetime.strptime(data_pause, '%H:%M')
-            data_end_pause = data['end_pause_time']
-            data_str_end_pause = datetime.strptime(data_end_pause, '%H:%M')
+            data_pause = data.get('pause_time', None)
+            data_end_pause = data.get('end_pause_time', None)
+
+            if data_pause != None and data_end_pause != None:
+                data_str_pause = datetime.strptime(data_pause, '%H:%M')
+                data_str_end_pause = datetime.strptime(data_end_pause, '%H:%M')
+                Days.objects.create(
+                    company_id=data['id'],
+                    day=data['day'],
+                    start=data_obj,
+                    end_time=data_str_end,
+                    pause_time=data_str_pause,
+                    end_pause_time=data_str_end_pause
+                )
+
             Days.objects.create(
                 company_id=data['id'],
                 day=data['day'],
                 start=data_obj,
-                end=data_str_end,
-                pause_time=data_str_pause,
-                end_pause_time=data_str_end_pause
+                end_time=data_str_end
             )
             return Response({'message': 'Dia registrado com sucesso'}, status=status.HTTP_200_OK)
         except Exception as error:
-            sentry_sdk.capture_exception(error)
+            print(error)
             return Response({'message': 'Erro ao registrar dia!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=False, methods=['PATCH'], permission_classes=[PermissionBarber])

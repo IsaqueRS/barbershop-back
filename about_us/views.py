@@ -23,7 +23,7 @@ class AboutUsViewSet(ModelViewSet):
                 serializer = AboutUsSerializer(about_us)
                 return Response({'message': 'Sucesso', 'about_us': serializer.data}, status.HTTP_200_OK)
             else:
-                return Response({'Nenhuma informação encontrada'}, status=status.HTTP_404_NOT_FOUND)
+                return Response({'message': 'Nenhuma informação encontrada'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as error:
             print(error)
             return Response({'message': 'Erro'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
