@@ -292,11 +292,14 @@ class SchedulesViewset(ModelViewSet):
 
     @action(detail=False, methods=['GET'], permission_classes=[IsAuthenticated])
     def all_schedules_days(self, request):
+        params = request.query_params
         try:
             now = datetime.now()
-            schedules = SchedulesDays.objects.all().exclude(data__lt=now)
+            schedules = SchedulesDays.objects.filter(
+                schedule__barbershop__id=params['company_id']
+            ).exclude(data__lt=now).order_by('data')
             serializer = SchedulesDaysSerializer(schedules, many=True)
-            return Response({'message': 'Cortes agendados para você', 'schedules': serializer.data})
+            return Response({'message': 'Cortes agendados até o momento', 'schedules': serializer.data})
         except Exception as error:
             sentry_sdk.capture_exception(error)
             return Response({'message': 'Erro ao listar seus agendamentos'},
