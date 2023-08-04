@@ -149,7 +149,7 @@ class CompanysViewSet(ModelViewSet):
             )
             return Response({'message': 'Dia registrado com sucesso'}, status=status.HTTP_200_OK)
         except Exception as error:
-            print(error)
+            sentry_sdk.capture_exception(error)
             return Response({'message': 'Erro ao registrar dia!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=False, methods=['PATCH'], permission_classes=[PermissionBarber])
