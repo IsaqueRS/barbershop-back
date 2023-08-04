@@ -25,10 +25,13 @@ class FormSchedules(forms.ModelForm):
 
         request = self.Meta.formfield_callback.keywords['request']
         user = request.user
+        print(user.type)
         if user.type == 'barbeiro' or user.type == 'desenvolvedor_dono':
             self.fields['confirmed_by_barber'].disabled = False
-        else:
+            self.fields['user_canceled'].disabled = False
+        elif user.type == 'cliente':
             self.fields['confirmed_by_barber'].disabled = True
+            self.fields['user_canceled'].disabled = False
 
 
 class SchedulesAdmin(admin.ModelAdmin):
