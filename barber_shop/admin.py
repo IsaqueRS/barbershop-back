@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Company, Schedules, Days
+from .models import Company, Schedules, Days, SchedulesDays
 from django import forms
 
 
@@ -17,6 +17,7 @@ class CompanyAdmin(admin.ModelAdmin):
         DaysInline
     ]
     filter_horizontal = ['owner', 'employees']
+    list_display = ['id', 'name']
 
 
 class FormSchedules(forms.ModelForm):
@@ -27,15 +28,23 @@ class FormSchedules(forms.ModelForm):
         user = request.user
         if user.type == 'barbeiro' or user.type == 'desenvolvedor_dono':
             self.fields['confirmed_by_barber'].disabled = False
-        else:
+            self.fields['user_canceled'].disabled = False
+        elif user.type == 'cliente':
             self.fields['confirmed_by_barber'].disabled = True
+            self.fields['user_canceled'].disabled = False
 
 
 class SchedulesAdmin(admin.ModelAdmin):
-    list_display = ['client', 'chosen_barber', 'date', 'confirmed_by_barber']
+    list_display = ['id', 'client', 'chosen_barber', 'date', 'confirmed_by_barber', 'user_canceled']
     list_filter = ['confirmed_by_barber']
     form = FormSchedules
 
 
+class SchedulesDaysAdmin(admin.ModelAdmin):
+    list_display = ['day', 'schedule']
+
+
 admin.site.register(Company, CompanyAdmin)
 admin.site.register(Schedules, SchedulesAdmin)
+admin.site.register(SchedulesDays, SchedulesDaysAdmin)
+# admin.site.register(Days)
