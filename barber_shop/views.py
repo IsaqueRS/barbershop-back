@@ -360,3 +360,15 @@ class SchedulesViewset(ModelViewSet):
         except Exception as error:
             sentry_sdk.capture_exception(error)
             return Response({'Response': 'Erro ao cancelar seu agendamento'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['GET'], permission_classes=[IsAuthenticated])
+    def available_times(self, request):
+        params = request.query_params
+        try:
+            now = datetime.now()
+            day = SchedulesDays.objects.filter(day__company__id=params['day_id']).exclude(data__lte=now)
+            serializer = SchedulesDaysSerializer(day, many=True)
+            return Response({'message': 'Dias disponiveis', 'available_times': serializer.data}, status=status.HTTP_200_OK)
+        except Exception as error:
+            sentry_sdk.capture_exception(error)
+            return Response({'message': 'Erro ao listar horários disponiveis do dia'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
