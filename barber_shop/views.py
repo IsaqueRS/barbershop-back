@@ -9,7 +9,7 @@ from rest_framework.decorators import action
 from django.core.exceptions import ObjectDoesNotExist
 import sentry_sdk
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from utils import send_email
 
@@ -366,8 +366,18 @@ class SchedulesViewset(ModelViewSet):
         params = request.query_params
         try:
             now = datetime.now()
-            day = SchedulesDays.objects.filter(day__company__id=params['day_id']).exclude(data__lte=now)
-            serializer = SchedulesDaysSerializer(day, many=True)
+            end_date = now + timedelta(days=15)
+            days = SchedulesDays.objects.filter(
+                day__company__id=params['day_id'], data__range=[now, end_date]
+            ).exclude(data__lte=now).order_by('data')
+
+            available_days = []
+            for day in days:
+                available_times = SchedulesDays.objects.filter(day__start__gte=now)
+                if available_times.exists():
+                    available_days.append(day)
+
+            serializer = SchedulesDaysSerializer(available_days, many=True)
             return Response({'message': 'Dias disponiveis', 'available_times': serializer.data}, status=status.HTTP_200_OK)
         except Exception as error:
             sentry_sdk.capture_exception(error)
