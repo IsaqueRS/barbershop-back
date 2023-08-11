@@ -9,7 +9,7 @@ from rest_framework.decorators import action
 from django.core.exceptions import ObjectDoesNotExist
 import sentry_sdk
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from utils import send_email
 
@@ -364,11 +364,30 @@ class SchedulesViewset(ModelViewSet):
     @action(detail=False, methods=['GET'], permission_classes=[IsAuthenticated])
     def available_times(self, request):
         params = request.query_params
+        day_id = params['day_id']
         try:
             now = datetime.now()
-            day = SchedulesDays.objects.filter(day__company__id=params['day_id']).exclude(data__lte=now)
-            serializer = SchedulesDaysSerializer(day, many=True)
-            return Response({'message': 'Dias disponiveis', 'available_times': serializer.data}, status=status.HTTP_200_OK)
+            end_date = now + timedelta(days=15)
+            day = Days.objects.filter(company__id=day_id).first()
+
+            working_start = datetime.combine(datetime.today(), day.start)
+            working_end = datetime.combine(datetime.today(), day.end_time)
+            pause_start = datetime.combine(datetime.today(), day.pause_time) if day.pause_time else None
+            pause_end = datetime.combine(datetime.today(), day.end_pause_time) if day.end_pause_time else None
+
+            available_times_list = []
+
+            current_time = working_start
+            time_interval = timedelta(hours=1)
+
+            while current_time.time() < working_end.time():
+                if (
+                        (pause_start is None or current_time.time() < pause_start.time()) and
+                        (pause_end is None or current_time.time() >= pause_end.time())
+                ):
+                    available_times_list.append(current_time.strftime('%H:%M'))
+                current_time += time_interval
+            return Response({'message': 'Dias disponiveis', 'available_times_list': available_times_list}, status=status.HTTP_200_OK)
         except Exception as error:
             sentry_sdk.capture_exception(error)
             return Response({'message': 'Erro ao listar horários disponiveis do dia'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
