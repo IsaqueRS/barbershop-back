@@ -41,10 +41,15 @@ class SchedulesAdmin(admin.ModelAdmin):
 
 
 class SchedulesDaysAdmin(admin.ModelAdmin):
-    list_display = ['day', 'schedule']
+    list_display = ['id', 'day', 'schedule']
+
+
+class DaysAdmin(admin.ModelAdmin):
+    list_display = ['day', 'start', 'end_time', 'company']
+    list_filter = ['company']
 
 
 admin.site.register(Company, CompanyAdmin)
 admin.site.register(Schedules, SchedulesAdmin)
 admin.site.register(SchedulesDays, SchedulesDaysAdmin)
-# admin.site.register(Days)
+admin.site.register(Days, DaysAdmin)
