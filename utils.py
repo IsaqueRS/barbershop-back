@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 
 from barbershop import settings
 from email.mime.multipart import MIMEMultipart
@@ -38,3 +39,25 @@ def send_email(email, subject, body):
     except Exception as error:
         sentry_sdk.capture_exception(error)
         return 500
+
+
+def get_available_times_for_day(day, date):
+    working_start = datetime.combine(date, day.start)
+    working_end = datetime.combine(date, day.end_time)
+    pause_start = datetime.combine(date, day.pause_time) if day.pause_time else None
+    pause_end = datetime.combine(date, day.end_pause_time) if day.end_pause_time else None
+
+    available_times_list = []
+
+    current_time = working_start
+    time_interval = timedelta(hours=1)
+
+    while current_time.time() < working_end.time():
+        if (
+                (pause_start is None or current_time.time() < pause_start.time()) and
+                (pause_end is None or current_time.time() >= pause_end.time())
+        ):
+            available_times_list.append(current_time.strftime('%H:%M'))
+        current_time += time_interval
+
+    return available_times_list

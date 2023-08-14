@@ -11,7 +11,7 @@ import sentry_sdk
 
 from datetime import datetime, timedelta
 
-from utils import send_email
+from utils import send_email, get_available_times_for_day
 
 from barbershop.permissions import PermissionBarber
 from users.models import UserProfile
@@ -381,28 +381,23 @@ class SchedulesViewset(ModelViewSet):
         params = request.query_params
         day_id = params['day_id']
         try:
-            now = datetime.now()
-            end_date = now + timedelta(days=15)
             day = Days.objects.filter(company__id=day_id).first()
 
-            working_start = datetime.combine(datetime.today(), day.start)
-            working_end = datetime.combine(datetime.today(), day.end_time)
-            pause_start = datetime.combine(datetime.today(), day.pause_time) if day.pause_time else None
-            pause_end = datetime.combine(datetime.today(), day.end_pause_time) if day.end_pause_time else None
+            today = datetime.now()
+            future_date = today + timedelta(days=15)
 
-            available_times_list = []
+            available_times_today = get_available_times_for_day(day, today)
+            available_times_future = get_available_times_for_day(day, future_date)
 
-            current_time = working_start
-            time_interval = timedelta(hours=1)
-
-            while current_time.time() < working_end.time():
-                if (
-                        (pause_start is None or current_time.time() < pause_start.time()) and
-                        (pause_end is None or current_time.time() >= pause_end.time())
-                ):
-                    available_times_list.append(current_time.strftime('%H:%M'))
-                current_time += time_interval
-            return Response({'message': 'Dias disponiveis', 'available_times_list': available_times_list}, status=status.HTTP_200_OK)
+            return Response(
+                {
+                    'message': 'Horários disponíveis',
+                    'available_times_today': available_times_today,
+                    'available_times_future': available_times_future
+                },
+                status=status.HTTP_200_OK
+            )
         except Exception as error:
             sentry_sdk.capture_exception(error)
-            return Response({'message': 'Erro ao listar horários disponiveis do dia'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({'message': 'Erro ao listar horários disponíveis do dia'},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
