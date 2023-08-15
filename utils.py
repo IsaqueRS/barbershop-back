@@ -53,11 +53,14 @@ def get_available_times_for_day(day, date):
     time_interval = timedelta(hours=1)
 
     while current_time.time() < working_end.time():
-        if (
-                (pause_start is None or current_time.time() < pause_start.time()) and
-                (pause_end is None or current_time.time() >= pause_end.time())
-        ):
+        is_within_pause = (
+                pause_start and pause_end and
+                pause_start.time() <= current_time.time() < pause_end.time()
+        )
+
+        if not is_within_pause:
             available_times_list.append(current_time.strftime('%H:%M'))
+
         current_time += time_interval
 
     return available_times_list

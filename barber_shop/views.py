@@ -384,16 +384,24 @@ class SchedulesViewset(ModelViewSet):
             day = Days.objects.filter(company__id=day_id).first()
 
             today = datetime.now()
-            future_date = today + timedelta(days=15)
+            end_date = today + timedelta(days=15)
 
             available_times_today = get_available_times_for_day(day, today)
-            available_times_future = get_available_times_for_day(day, future_date)
+
+            available_times_all_days = []
+            current_date = today
+            while current_date <= end_date:
+                available_times = get_available_times_for_day(day, current_date)
+                available_times_all_days.append(
+                    {'date': current_date.strftime('%Y-%m-%d'), 'times': available_times}
+                )
+                current_date += timedelta(days=1)
 
             return Response(
                 {
                     'message': 'Horários disponíveis',
                     'available_times_today': available_times_today,
-                    'available_times_future': available_times_future
+                    'available_times_all_days': available_times_all_days
                 },
                 status=status.HTTP_200_OK
             )
