@@ -45,6 +45,9 @@ class SchedulesDaysAdmin(admin.ModelAdmin):
 
 
 class DaysAdmin(admin.ModelAdmin):
+    fieldsets = (
+        ('Modificar dia', {'fields': ('day', 'start', 'end_time', 'pause_time', 'end_pause_time', 'company')}),
+    )
     list_display = ['day', 'start', 'end_time', 'company']
     list_filter = ['company']
 
