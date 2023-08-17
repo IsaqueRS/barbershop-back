@@ -14,3 +14,15 @@ class AbousUs(models.Model):
     class Meta:
         verbose_name = 'Sobre nós'
         verbose_name_plural = 'Sobre nós'
+
+
+class TermsOfUse(models.Model):
+    title = models.CharField('Titulo', max_length=50)
+    terms_of_use = models.FileField(upload_to='terms_of_use/', verbose_name='Termos de Uso', blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.title} - {self.terms_of_use}"
+
+    class Meta:
+        verbose_name = 'Termo de Uso'
+        verbose_name_plural = 'Termos de Uso'
