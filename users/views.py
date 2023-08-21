@@ -45,10 +45,8 @@ class UserViewset(ModelViewSet):
             #sentry_sdk.capture_exception(error)
             return Response({'message': 'Erro no cadastro de usuário.', 'error': str(error)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-
     @action(detail=False, methods=['DELETE'], permission_classes=[IsAuthenticated])
     def delete_user(self, request):
-        data = request.data
         try:
             user = UserProfile.objects.get(id=request.user.id)
             user.delete()
@@ -61,7 +59,6 @@ class UserViewset(ModelViewSet):
         except Exception as error:
             return Response({'message': 'Nao Foi Possivel Deletar usuario, Entre em Contato com o Suporte.'},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
 
     @action(detail=False, methods=['PATCH'], permission_classes=[IsAuthenticated])
     def update_user(self, request):
@@ -78,3 +75,40 @@ class UserViewset(ModelViewSet):
         except Exception as error:
             print(error)
             return Response({'message': 'Erro ao atualizar o usuário!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['GET'], permission_classes=[IsAuthenticated])
+    def get_user(self, request):
+        user = request.user
+        try:
+            user = UserProfile.objects.get(id=user.id)
+            serializer = UserSerializer(user)
+            return Response({'message': 'Perfil encontrado', 'user': serializer.data}, status=status.HTTP_200_OK)
+        except Exception as error:
+            print(error)
+            return Response({'message': 'Erro ao buscar perfiL'},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['GET'], permission_classes=[IsAuthenticated])
+    def get_user_by_id(self, request):
+        params = request.query_params
+        try:
+            user = UserProfile.objects.get(id=params['user_id'])
+            serializer = UserSerializer(user)
+            return Response({'message': 'Usuário encontrado', 'user': serializer.data}, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
+            return Response({'message': 'Usuário não encontrado'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as error:
+            print(error)
+            return Response({'message': 'Erro ao buscar usuário'},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['GET'], permission_classes=[AllowAny])
+    def list_users(self, request):
+        try:
+            users = UserProfile.objects.all()
+            serializer = UserSerializer(users, many=True)
+            return Response({'message': 'Usuários encontrados', 'users': serializer.data}, status=status.HTTP_200_OK)
+        except Exception as error:
+            print(error)
+            return Response({'message': 'Erro ao buscar usuários'},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
