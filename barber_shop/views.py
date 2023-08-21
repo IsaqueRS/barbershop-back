@@ -311,7 +311,7 @@ class SchedulesViewset(ModelViewSet):
             return Response({'message': 'Agendamento não encontrado'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as error:
             sentry_sdk.capture_exception(error)
-            return Response({'message': 'Erro ao listar seus agendamentos'},
+            return Response({'message': 'Erro ao listar os agendamentos do dia'},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=False, methods=['GET'], permission_classes=[IsAuthenticated])
