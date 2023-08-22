@@ -10,6 +10,8 @@ from django.core.exceptions import ObjectDoesNotExist
 import sentry_sdk
 
 from datetime import datetime, timedelta
+import holidays
+
 
 from utils import send_email, get_available_times_for_day
 
@@ -23,6 +25,7 @@ class CompanysViewSet(ModelViewSet):
     queryset = Company.objects.all()
     serializer_class = CompanysSerializers
     permission_classes = [IsAuthenticated]
+    my_holidays = holidays.Brazil()
 
     @action(methods=['POST'], detail=False, permission_classes=[AllowAny])
     def register_company(self, request):
@@ -381,6 +384,10 @@ class SchedulesViewset(ModelViewSet):
         params = request.query_params
         day_id = params['day_id']
         try:
+
+            def is_working_day(date):
+                return date.weekday() < 5 and date not in self.my_holidays
+
             day = Days.objects.filter(company__id=day_id).first()
 
             today = datetime.now()
@@ -389,12 +396,13 @@ class SchedulesViewset(ModelViewSet):
             available_times_today = get_available_times_for_day(day, today)
 
             available_times_all_days = []
-            current_date = today + timedelta(days=1)
+            current_date = today
             while current_date <= end_date:
-                available_times = get_available_times_for_day(day, current_date)
-                available_times_all_days.append(
-                    {'future_date': current_date.strftime('%Y-%m-%d'), 'times': available_times}
-                )
+                if is_working_day(current_date):
+                    available_times = get_available_times_for_day(day, current_date)
+                    available_times_all_days.append(
+                        {'future_date': current_date.strftime('%Y-%m-%d'), 'times': available_times}
+                    )
                 current_date += timedelta(days=1)
 
             return Response(
