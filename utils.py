@@ -30,7 +30,7 @@ def send_email(email, subject, body):
         server.login(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD)
 
         # send the message via the server.
-        server.sendmail(msg['From'], msg['To'], msg.as_string ())
+        server.sendmail(msg['From'], msg['To'], msg.as_string())
 
         server.quit()
 
