@@ -25,7 +25,6 @@ class CompanysViewSet(ModelViewSet):
     queryset = Company.objects.all()
     serializer_class = CompanysSerializers
     permission_classes = [IsAuthenticated]
-    my_holidays = holidays.Brazil()
 
     @action(methods=['POST'], detail=False, permission_classes=[AllowAny])
     def register_company(self, request):
@@ -381,12 +380,13 @@ class SchedulesViewset(ModelViewSet):
 
     @action(detail=False, methods=['GET'], permission_classes=[IsAuthenticated])
     def available_times(self, request):
+        my_holidays = holidays.Brazil()
         params = request.query_params
         day_id = params['day_id']
         try:
 
             def is_working_day(date):
-                return date.weekday() < 5 and date not in self.my_holidays
+                return date.weekday() < 5 and date not in my_holidays
 
             day = Days.objects.filter(company__id=day_id).first()
 
@@ -414,6 +414,6 @@ class SchedulesViewset(ModelViewSet):
                 status=status.HTTP_200_OK
             )
         except Exception as error:
-            sentry_sdk.capture_exception(error)
+            print(error)
             return Response({'message': 'Erro ao listar horários disponíveis do dia'},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
