@@ -386,7 +386,11 @@ class SchedulesViewset(ModelViewSet):
         try:
 
             def is_working_day(date):
-                return date.weekday() < 5 and date not in my_holidays
+                return (
+                    date.weekday() < 5
+                    and date not in my_holidays
+                    and day.working_day
+                )
 
             day = Days.objects.filter(company__id=day_id).first()
 
@@ -414,6 +418,6 @@ class SchedulesViewset(ModelViewSet):
                 status=status.HTTP_200_OK
             )
         except Exception as error:
-            print(error)
+            sentry_sdk.capture_exception(error)
             return Response({'message': 'Erro ao listar horários disponíveis do dia'},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
