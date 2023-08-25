@@ -185,9 +185,25 @@ class CompanysViewSet(ModelViewSet):
     def list_days(self, request):
         params = request.query_params
         try:
-            company_days = Days.objects.filter(company_id=params['company_id'])
+            company_days = Days.objects.filter(company_id=params['company_id'], working_day=True)
             serializer = DaysSerializer(company_days, many=True)
             return Response({'message': 'Sucesso', 'company_days': serializer.data}, status=status.HTTP_200_OK)
+        except Exception as error:
+            sentry_sdk.capture_exception(error)
+            return Response({'message': 'Erro ao buscar por barbearia'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['DELETE'], permission_classes=[IsAuthenticated])
+    def exclude_day(self, request):
+        user = request.user
+        params = request.query_params
+        try:
+            day = Days.objects.get(pk=params['day_id'])
+            if user not in day.company.owner.all():
+                return Response({'message': 'Apenas o dono da barbearia pode deletar os dias de funcionamento'}, status=status.HTTP_401_UNAUTHORIZED)
+            day.delete()
+            return Response({'message': 'Deletado com sucesso'}, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
+            return Response({'message': 'Dia não encontrado'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as error:
             sentry_sdk.capture_exception(error)
             return Response({'message': 'Erro ao buscar por barbearia'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
