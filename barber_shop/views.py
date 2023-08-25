@@ -206,7 +206,7 @@ class CompanysViewSet(ModelViewSet):
             return Response({'message': 'Dia não encontrado'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as error:
             sentry_sdk.capture_exception(error)
-            return Response({'message': 'Erro ao buscar por barbearia'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({'message': 'Erro ao buscar por dia'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class SchedulesViewset(ModelViewSet):
