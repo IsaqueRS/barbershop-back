@@ -5,7 +5,7 @@ from django import forms
 
 class DaysInline(admin.StackedInline):
     model = Days
-    fields = ['day', 'start', 'end_time', 'pause_time', 'end_pause_time']
+    fields = ['day', 'start', 'end_time', 'pause_time', 'end_pause_time', 'working_day']
 
 
 class CompanyAdmin(admin.ModelAdmin):
@@ -46,7 +46,7 @@ class SchedulesDaysAdmin(admin.ModelAdmin):
 
 class DaysAdmin(admin.ModelAdmin):
     fieldsets = (
-        ('Modificar dia', {'fields': ('day', 'start', 'end_time', 'pause_time', 'end_pause_time', 'company')}),
+        ('Modificar dia', {'fields': ('day', 'start', 'end_time', 'pause_time', 'end_pause_time', 'company', 'working_day')}),
     )
     list_display = ['id', 'day', 'start', 'end_time', 'company']
     list_filter = ['company']
