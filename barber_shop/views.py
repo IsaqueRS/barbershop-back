@@ -408,7 +408,7 @@ class SchedulesViewset(ModelViewSet):
                     and day.working_day
                 )
 
-            day = Days.objects.filter(company__id=day_id).first()
+            day = Days.objects.filter(company__id=day_id, working_day=True).first()
 
             today = datetime.now()
             end_date = today + timedelta(days=15)
