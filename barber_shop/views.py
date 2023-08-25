@@ -10,10 +10,9 @@ from django.core.exceptions import ObjectDoesNotExist
 import sentry_sdk
 
 from datetime import datetime, timedelta
-import holidays
 
 
-from utils import send_email, get_available_times_for_day
+from utils import send_email, get_available_times_for_day, is_working_day
 
 from barbershop.permissions import PermissionBarber
 from users.models import UserProfile
@@ -396,17 +395,9 @@ class SchedulesViewset(ModelViewSet):
 
     @action(detail=False, methods=['GET'], permission_classes=[IsAuthenticated])
     def available_times(self, request):
-        my_holidays = holidays.Brazil()
         params = request.query_params
         day_id = params['day_id']
         try:
-
-            def is_working_day(date):
-                return (
-                    date.weekday() < 5
-                    and date not in my_holidays
-                    and day.working_day
-                )
 
             day = Days.objects.filter(company__id=day_id, working_day=True).first()
 
@@ -418,7 +409,7 @@ class SchedulesViewset(ModelViewSet):
             available_times_all_days = []
             current_date = today
             while current_date <= end_date:
-                if is_working_day(current_date):
+                if is_working_day(day, current_date):
                     available_times = get_available_times_for_day(day, current_date)
                     available_times_all_days.append(
                         {'future_date': current_date.strftime('%Y-%m-%d'), 'times': available_times}
@@ -434,6 +425,6 @@ class SchedulesViewset(ModelViewSet):
                 status=status.HTTP_200_OK
             )
         except Exception as error:
-            sentry_sdk.capture_exception(error)
+            print(error)
             return Response({'message': 'Erro ao listar horários disponíveis do dia'},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)

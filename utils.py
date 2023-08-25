@@ -7,6 +7,8 @@ from email.mime.text import MIMEText
 import sentry_sdk
 import smtplib
 
+import holidays
+
 
 def send_email(email, subject, body):
     try:
@@ -64,3 +66,13 @@ def get_available_times_for_day(day, date):
         current_time += time_interval
 
     return available_times_list
+
+
+def is_working_day(day, date):
+    my_holidays = holidays.Brazil()
+
+    return (
+            date.weekday() < 5
+            and date not in my_holidays
+            and day.working_day
+    )
