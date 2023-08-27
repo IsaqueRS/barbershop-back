@@ -401,7 +401,7 @@ class SchedulesViewset(ModelViewSet):
 
             day = Days.objects.get(id=day_id, working_day=True)
 
-            today = datetime.today()
+            today = datetime.now()
             end_date = today + timedelta(days=15)
 
             available_times_today = get_available_times_for_day(day, today)
