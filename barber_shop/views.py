@@ -425,6 +425,6 @@ class SchedulesViewset(ModelViewSet):
                 status=status.HTTP_200_OK
             )
         except Exception as error:
-            print(error)
+            sentry_sdk.capture_exception(error)
             return Response({'message': 'Erro ao listar horários disponíveis do dia'},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
