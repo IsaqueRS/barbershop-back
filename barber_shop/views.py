@@ -424,6 +424,8 @@ class SchedulesViewset(ModelViewSet):
                 },
                 status=status.HTTP_200_OK
             )
+        except ObjectDoesNotExist:
+            return Response({'message': 'Dia não encontrado'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as error:
             sentry_sdk.capture_exception(error)
             return Response({'message': 'Erro ao listar horários disponíveis do dia'},
