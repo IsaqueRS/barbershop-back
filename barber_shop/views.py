@@ -398,7 +398,6 @@ class SchedulesViewset(ModelViewSet):
         params = request.query_params
         day_id = params['day_id']
         try:
-
             day = Days.objects.get(id=day_id, working_day=True)
 
             today = datetime.now()
