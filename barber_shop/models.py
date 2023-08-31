@@ -76,8 +76,8 @@ class Schedules(models.Model):
 
 
 class SchedulesDays(models.Model):
-    day = models.ForeignKey(Days, verbose_name='Dia', related_name='schedule_day', on_delete=models.PROTECT)
-    schedule = models.ForeignKey(Schedules, verbose_name='Agendado por', related_name='schedule', on_delete=models.PROTECT)
+    day = models.ForeignKey(Days, verbose_name='Dia', related_name='schedule_day', on_delete=models.CASCADE)
+    schedule = models.ForeignKey(Schedules, verbose_name='Agendado por', related_name='schedule', on_delete=models.CASCADE)
     data = models.DateTimeField('Data')
 
     def __str__(self):
