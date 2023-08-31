@@ -11,7 +11,7 @@ class DaysInline(admin.StackedInline):
 class CompanyAdmin(admin.ModelAdmin):
     fieldsets = (
          ('Informações de Contato', {'fields': ('owner', 'employees', 'name', 'phone', 'instagram_link', 'facebook_link')}),
-         ('Informações de Endereço', {'fields': ('cep', 'state', 'city', 'neighborhood', 'street')}),
+         ('Informações de Endereço', {'fields': ('cep', 'state', 'city', 'neighborhood', 'street', 'number')}),
                  )
     inlines = [
         DaysInline
