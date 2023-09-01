@@ -36,7 +36,6 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 
-
 sentry_sdk.init(
   dsn="https://2c25d47a3e554852a7281c6970cbbeea@o4505370953187328.ingest.sentry.io/4505551360491520",
   integrations=[DjangoIntegration()],
