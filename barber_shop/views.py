@@ -119,6 +119,17 @@ class CompanysViewSet(ModelViewSet):
             sentry_sdk.capture_exception(error)
             return Response({'message': 'Erro ao buscar por barbearia'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+    @action(detail=False, methods=['GET'], permission_classes=[IsAuthenticated])
+    def search_companys(self, request):
+        params = request.query_params
+        try:
+            company = Company.objects.filter(name__icontains=params['name'])
+            serializer = CompanysSerializers(company, many=True)
+            return Response({'message': 'Sucesso', 'company(s)': serializer.data}, status=status.HTTP_200_OK)
+        except Exception as error:
+            sentry_sdk.capture_exception(error)
+            return Response({'message': 'Erro ao buscar barbearia(s)'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
     @action(detail=False, methods=['POST'], permission_classes=[IsAuthenticated])
     def create_business_day(self, request):
         data = request.data
