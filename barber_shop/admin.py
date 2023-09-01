@@ -16,8 +16,10 @@ class CompanyAdmin(admin.ModelAdmin):
     inlines = [
         DaysInline
     ]
+    search_fields = ['name']
     filter_horizontal = ['owner', 'employees']
     list_display = ['id', 'name']
+    list_display_links = ['id', 'name']
 
 
 class FormSchedules(forms.ModelForm):
@@ -46,9 +48,10 @@ class SchedulesDaysAdmin(admin.ModelAdmin):
 
 class DaysAdmin(admin.ModelAdmin):
     fieldsets = (
-        ('Modificar dia', {'fields': ('day', 'start', 'end_time', 'pause_time', 'end_pause_time', 'company', 'working_day')}),
+        ('Modificar dia', {'fields': ('day', 'start', 'end_time', 'pause_time', 'end_pause_time', 'company',
+                                      'working_day')}),
     )
-    list_display = ['id', 'day', 'start', 'end_time', 'company']
+    list_display = ['id', 'day', 'start', 'end_time', 'company', 'working_day']
     list_filter = ['company']
 
 
