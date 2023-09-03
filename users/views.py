@@ -113,6 +113,18 @@ class UserViewset(ModelViewSet):
             return Response({'message': 'Erro ao buscar usuários'},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+    @action(detail=False, methods=['GET'], permission_classes=[AllowAny])
+    def list_users_by_type(self, request):
+        params = request.query_params
+        try:
+            users = UserProfile.objects.filter(type=params['type_user']).order_by('id')
+            serializer = UserSerializer(users, many=True)
+            return Response({'message': 'Usuários encontrados', 'users': serializer.data}, status=status.HTTP_200_OK)
+        except Exception as error:
+            print(error)
+            return Response({'message': 'Erro ao buscar usuários'},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
     @action(detail=False, methods=['GET'], permission_classes=[IsAuthenticated])
     def search_users(self, request):
         params = request.query_params

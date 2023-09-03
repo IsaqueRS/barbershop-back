@@ -346,6 +346,18 @@ class SchedulesViewset(ModelViewSet):
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=False, methods=['GET'], permission_classes=[IsAuthenticated])
+    def days_by_company(self, request):
+        params = request.query_params
+        try:
+            days = Days.objects.filter(company__id=params['company_id'])
+            serializer = DaysSerializer(days, many=True)
+            return Response({'message': 'Dias de funcionamento da barbearia', 'days': serializer.data})
+        except Exception as error:
+            sentry_sdk.capture_exception(error)
+            return Response({'message': 'Erro ao listar seus Dias de funcionamento'},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['GET'], permission_classes=[IsAuthenticated])
     def schedules_by_company(self, request):
         params = request.query_params
         try:
