@@ -352,7 +352,7 @@ class SchedulesViewset(ModelViewSet):
             now = datetime.now()
             schedules = Schedules.objects.filter(barbershop__id=params['company_id'], date__gte=now).order_by('date')
             serializer = SchedulesSerializer(schedules, many=True)
-            return Response({'message': 'Cortes agendados até o momento', 'schedules': serializer.data})
+            return Response({'message': 'Cortes agendados até o momento na sua barbearia', 'schedules': serializer.data})
         except Exception as error:
             sentry_sdk.capture_exception(error)
             return Response({'message': 'Erro ao listar seus agendamentos'},
@@ -367,7 +367,7 @@ class SchedulesViewset(ModelViewSet):
                 schedule__barbershop__id=params['company_id']
             ).exclude(data__lt=now).order_by('data')
             serializer = SchedulesDaysSerializer(schedules, many=True)
-            return Response({'message': 'Cortes agendados até o momento', 'schedules': serializer.data})
+            return Response({'message': 'Dias com cortes agendados até o momento', 'schedules': serializer.data})
         except Exception as error:
             sentry_sdk.capture_exception(error)
             return Response({'message': 'Erro ao listar seus agendamentos'},
