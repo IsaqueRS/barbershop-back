@@ -304,7 +304,8 @@ class SchedulesViewset(ModelViewSet):
     def schedule_by_id(self, request):
         params = request.query_params
         try:
-            schedule = Schedules.objects.get(pk=params['schedule_id'])
+            now = datetime.now()
+            schedule = Schedules.objects.get(pk=params['schedule_id'], date__gte=now)
             serializer = SchedulesSerializer(schedule)
             return Response({'message': 'Agendamento encontrado', 'schedule': serializer.data},
                             status=status.HTTP_200_OK)
@@ -319,7 +320,9 @@ class SchedulesViewset(ModelViewSet):
         user = request.user
         try:
             now = datetime.now()
-            schedules = Schedules.objects.filter(chosen_barber_id=user.id).exclude(date__lt=now)
+            schedules = Schedules.objects.filter(
+                Q(chosen_barber_id=user.id) | Q(client_id=user.id)
+            ).exclude(date__lt=now)
             serializer = SchedulesSerializer(schedules, many=True)
             return Response({'message': 'Cortes agendados para você', 'schedules': serializer.data})
         except Exception as error:
@@ -343,7 +346,20 @@ class SchedulesViewset(ModelViewSet):
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=False, methods=['GET'], permission_classes=[IsAuthenticated])
-    def all_schedules_days(self, request):
+    def schedules_by_company(self, request):
+        params = request.query_params
+        try:
+            now = datetime.now()
+            schedules = Schedules.objects.filter(barbershop__id=params['company_id'], date__gte=now).order_by('date')
+            serializer = SchedulesSerializer(schedules, many=True)
+            return Response({'message': 'Cortes agendados até o momento na sua barbearia', 'schedules': serializer.data})
+        except Exception as error:
+            sentry_sdk.capture_exception(error)
+            return Response({'message': 'Erro ao listar seus agendamentos'},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['GET'], permission_classes=[IsAuthenticated])
+    def schedules_days_by_company(self, request):
         params = request.query_params
         try:
             now = datetime.now()
@@ -351,7 +367,7 @@ class SchedulesViewset(ModelViewSet):
                 schedule__barbershop__id=params['company_id']
             ).exclude(data__lt=now).order_by('data')
             serializer = SchedulesDaysSerializer(schedules, many=True)
-            return Response({'message': 'Cortes agendados até o momento', 'schedules': serializer.data})
+            return Response({'message': 'Dias com cortes agendados até o momento', 'schedules': serializer.data})
         except Exception as error:
             sentry_sdk.capture_exception(error)
             return Response({'message': 'Erro ao listar seus agendamentos'},
