@@ -250,11 +250,11 @@ class SchedulesViewset(ModelViewSet):
                 schedule_id=schedule.id,
                 data=data_obj
             )
-            date_msg = datetime.strftime(data_obj, '%d/%m/%Y às %H:%M')
-            instance = UserProfile.objects.get(pk=data['chosen_barber_id'])
-            subject = 'BarberShop'
-            message = f'O cliente {user} fez um novo agendamento para o dia {date_msg}'
-            send_email(instance.email, subject, message)
+            # date_msg = datetime.strftime(data_obj, '%d/%m/%Y às %H:%M')
+            # instance = UserProfile.objects.get(pk=data['chosen_barber_id'])
+            # subject = 'BarberShop'
+            # message = f'O cliente {user} fez um novo agendamento para o dia {date_msg}'
+            # send_email(instance.email, subject, message)
 
             return Response({'message': 'Agendamento feito com sucesso'}, status=status.HTTP_200_OK)
         except Exception as error:
@@ -443,12 +443,27 @@ class SchedulesViewset(ModelViewSet):
             end_date = today + timedelta(days=15)
 
             available_times_today = get_available_times_for_day(day, today)
-
             available_times_all_days = []
+
             current_date = today
             while current_date <= end_date:
                 if is_working_day(day, current_date):
                     available_times = get_available_times_for_day(day, current_date)
+
+                    # Obtenha todos os horários agendados para o dia atual
+                    scheduled_times = Schedules.objects.filter(
+                        day_id=day_id,
+                        date__date=current_date.date(),
+                    ).values_list('date__time', flat=True)
+
+                    # Exclua o horário específico que já foi agendado
+                    specific_scheduled_time = '09:00'  # Substitua com o horário específico que você deseja excluir
+                    if specific_scheduled_time in scheduled_times:
+                        scheduled_times.remove(specific_scheduled_time)
+
+                    # Exclua os horários agendados da lista de horários disponíveis
+                    available_times = [time for time in available_times if time not in scheduled_times]
+
                     available_times_all_days.append(
                         {'future_date': current_date.strftime('%Y-%m-%d'), 'times': available_times}
                     )
@@ -465,6 +480,6 @@ class SchedulesViewset(ModelViewSet):
         except ObjectDoesNotExist:
             return Response({'message': 'Dia não encontrado'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as error:
-            sentry_sdk.capture_exception(error)
+            print(error)
             return Response({'message': 'Erro ao listar horários disponíveis do dia'},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
