@@ -452,10 +452,10 @@ class SchedulesViewset(ModelViewSet):
 
                     scheduled_times = Schedules.objects.filter(
                         day_id=day_id,
-                        date__date=current_date.date(),
-                    ).values_list('date__time', flat=True)
+                        date=current_date.date(),
+                    ).values_list('date', flat=True)
 
-                    specific_scheduled_time = scheduled_times.date
+                    specific_scheduled_time = scheduled_times
                     if specific_scheduled_time in scheduled_times:
                         scheduled_times.remove(specific_scheduled_time)
 
