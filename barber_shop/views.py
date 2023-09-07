@@ -450,18 +450,15 @@ class SchedulesViewset(ModelViewSet):
                 if is_working_day(day, current_date):
                     available_times = get_available_times_for_day(day, current_date)
 
-                    # Obtenha todos os horários agendados para o dia atual
                     scheduled_times = Schedules.objects.filter(
                         day_id=day_id,
                         date__date=current_date.date(),
                     ).values_list('date__time', flat=True)
 
-                    # Exclua o horário específico que já foi agendado
-                    specific_scheduled_time = '09:00'  # Substitua com o horário específico que você deseja excluir
+                    specific_scheduled_time = scheduled_times.date
                     if specific_scheduled_time in scheduled_times:
                         scheduled_times.remove(specific_scheduled_time)
 
-                    # Exclua os horários agendados da lista de horários disponíveis
                     available_times = [time for time in available_times if time not in scheduled_times]
 
                     available_times_all_days.append(
