@@ -464,6 +464,7 @@ class SchedulesViewset(ModelViewSet):
                     available_times_all_days.append(
                         {'future_date': current_date.strftime('%Y-%m-%d'), 'times': available_times}
                     )
+                current_date += timedelta(days=1)
 
             return Response(
                 {
