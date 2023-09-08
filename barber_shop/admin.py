@@ -38,7 +38,7 @@ class FormSchedules(forms.ModelForm):
 
 class SchedulesAdmin(admin.ModelAdmin):
     list_display = ['id', 'client', 'chosen_barber', 'date', 'day', 'confirmed_by_barber', 'user_canceled']
-    list_filter = ['confirmed_by_barber']
+    list_filter = ['confirmed_by_barber', 'day', 'user_canceled']
     form = FormSchedules
 
 
@@ -52,7 +52,8 @@ class DaysAdmin(admin.ModelAdmin):
                                       'working_day')}),
     )
     list_display = ['id', 'day', 'start', 'end_time', 'company', 'working_day']
-    list_filter = ['company']
+    list_filter = ['company', 'working_day']
+    search_fields = ['day']
 
 
 admin.site.register(Company, CompanyAdmin)
