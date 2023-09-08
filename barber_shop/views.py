@@ -453,7 +453,7 @@ class SchedulesViewset(ModelViewSet):
                     scheduled_times = SchedulesDays.objects.filter(
                         day_id=day_id,
                         data=current_date.date(),
-                    ).exists()
+                    )
 
                     specific_scheduled_time = scheduled_times
                     if specific_scheduled_time in scheduled_times:
