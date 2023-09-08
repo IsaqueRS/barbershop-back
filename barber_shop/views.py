@@ -450,10 +450,10 @@ class SchedulesViewset(ModelViewSet):
                 if is_working_day(day, current_date):
                     available_times = get_available_times_for_day(day, current_date)
 
-                    scheduled_times = Schedules.objects.filter(
+                    scheduled_times = SchedulesDays.objects.filter(
                         day_id=day_id,
-                        date=current_date.date(),
-                    ).values_list('date', flat=True)
+                        data=current_date.date(),
+                    )
 
                     specific_scheduled_time = scheduled_times
                     if specific_scheduled_time in scheduled_times:
