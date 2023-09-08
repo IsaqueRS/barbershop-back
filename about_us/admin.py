@@ -9,5 +9,12 @@ class AboutUsAdmin(admin.ModelAdmin):
     )
 
 
+class TermsOfUseAdmin(admin.ModelAdmin):
+    fieldsets = (
+        ('Adicionar termos de uso', {'fields': ('title', 'terms_of_use')}),
+    )
+    list_display = ['title', 'terms_of_use']
+
+
 admin.site.register(AbousUs, AboutUsAdmin)
-admin.site.register(TermsOfUse)
+admin.site.register(TermsOfUse, TermsOfUseAdmin)
