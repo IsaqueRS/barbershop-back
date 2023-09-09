@@ -246,9 +246,11 @@ class SchedulesViewset(ModelViewSet):
                 confirmed_by_barber=data['confirmed_by_barber']
             )
 
+            valid_data = datetime.strptime(data_str, '%d/%m/%Y %H:%M').time()
             if (
-                  data_obj < schedule.day.start or data_obj >= schedule.day.end_time
-                  or data_obj == schedule.day.pause_time or data_obj == schedule.day.end_pause_time
+                    valid_data <= schedule.day.start or valid_data >= schedule.day.end_time
+                    or valid_data >= schedule.day.pause_time and valid_data < schedule.day.end_pause_time
+                    or valid_data == schedule.day.pause_time or valid_data < schedule.day.end_pause_time
             ):
                 return Response({
                     'message': 'Este horário não está disponivel para agendamento!'
@@ -262,12 +264,12 @@ class SchedulesViewset(ModelViewSet):
             # date_msg = datetime.strftime(data_obj, '%d/%m/%Y às %H:%M')
             # instance = UserProfile.objects.get(pk=data['chosen_barber_id'])
             # subject = 'BarberShop'
-            # message = f'O cliente {user} fez um novo agendamento para o dia {date_msg}'
+            # message = f'O cliente {user.username} fez um novo agendamento para o dia {schedule.day} {date_msg}'
             # send_email(instance.email, subject, message)
 
             return Response({'message': 'Agendamento feito com sucesso'}, status=status.HTTP_200_OK)
         except Exception as error:
-            sentry_sdk.capture_exception(error)
+            print(error)
             return Response({'message': 'Erro ao marcar agendamento'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=False, methods=['PATCH'], permission_classes=[IsAuthenticated])
