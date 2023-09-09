@@ -450,21 +450,17 @@ class SchedulesViewset(ModelViewSet):
                 if is_working_day(day, current_date):
                     available_times = get_available_times_for_day(day, current_date)
 
-                    scheduled_times = SchedulesDays.objects.filter(
+                    scheduled_times = Schedules.objects.filter(
                         day_id=day_id,
-                        data=current_date.date(),
-                    )
-
-                    specific_scheduled_time = scheduled_times
-                    if specific_scheduled_time in scheduled_times:
-                        scheduled_times.remove(specific_scheduled_time)
+                        date=end_date,
+                    ).values_list('date__time', flat=True)
 
                     available_times = [time for time in available_times if time not in scheduled_times]
-
+                    current_date += timedelta(days=1)
                     available_times_all_days.append(
                         {'future_date': current_date.strftime('%Y-%m-%d'), 'times': available_times}
                     )
-                current_date += timedelta(days=1)
+                    break
 
             return Response(
                 {
