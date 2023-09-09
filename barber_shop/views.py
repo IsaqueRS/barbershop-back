@@ -11,7 +11,6 @@ import sentry_sdk
 
 from datetime import datetime, timedelta
 
-
 from utils import send_email, get_available_times_for_day, is_working_day
 
 from barbershop.permissions import PermissionBarber
@@ -209,7 +208,8 @@ class CompanysViewSet(ModelViewSet):
         try:
             day = Days.objects.get(pk=params['day_id'])
             if user not in day.company.owner.all():
-                return Response({'message': 'Apenas o dono da barbearia pode deletar os dias de funcionamento'}, status=status.HTTP_401_UNAUTHORIZED)
+                return Response({'message': 'Apenas o dono da barbearia pode deletar os dias de funcionamento'},
+                                status=status.HTTP_401_UNAUTHORIZED)
             day.delete()
             return Response({'message': 'Deletado com sucesso'}, status=status.HTTP_200_OK)
         except ObjectDoesNotExist:
@@ -375,7 +375,8 @@ class SchedulesViewset(ModelViewSet):
             now = datetime.now()
             schedules = Schedules.objects.filter(barbershop__id=params['company_id'], date__gte=now).order_by('date')
             serializer = SchedulesSerializer(schedules, many=True)
-            return Response({'message': 'Cortes agendados até o momento na sua barbearia', 'schedules': serializer.data})
+            return Response(
+                {'message': 'Cortes agendados até o momento na sua barbearia', 'schedules': serializer.data})
         except Exception as error:
             sentry_sdk.capture_exception(error)
             return Response({'message': 'Erro ao listar seus agendamentos'},
@@ -441,7 +442,8 @@ class SchedulesViewset(ModelViewSet):
             return Response({'message': 'Cancelamento feito com sucesso'}, status=status.HTTP_200_OK)
         except Exception as error:
             sentry_sdk.capture_exception(error)
-            return Response({'Response': 'Erro ao cancelar seu agendamento'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({'Response': 'Erro ao cancelar seu agendamento'},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=False, methods=['GET'], permission_classes=[IsAuthenticated])
     def available_times(self, request):
