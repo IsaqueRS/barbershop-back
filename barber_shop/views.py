@@ -245,6 +245,15 @@ class SchedulesViewset(ModelViewSet):
                 chosen_barber_id=data['chosen_barber_id'],
                 confirmed_by_barber=data['confirmed_by_barber']
             )
+
+            if (
+                  data_obj < schedule.day.start or data_obj >= schedule.day.end_time
+                  or data_obj == schedule.day.pause_time or data_obj == schedule.day.end_pause_time
+            ):
+                return Response({
+                    'message': 'Este horário não está disponivel para agendamento!'
+                }, status=status.HTTP_401_UNAUTHORIZED)
+
             SchedulesDays.objects.create(
                 day_id=data['day_id'],
                 schedule_id=schedule.id,
