@@ -261,15 +261,15 @@ class SchedulesViewset(ModelViewSet):
                 schedule_id=schedule.id,
                 data=data_obj
             )
-            # date_msg = datetime.strftime(data_obj, '%d/%m/%Y às %H:%M')
-            # instance = UserProfile.objects.get(pk=data['chosen_barber_id'])
-            # subject = 'BarberShop'
-            # message = f'O cliente {user.username} fez um novo agendamento para o dia {schedule.day} {date_msg}'
-            # send_email(instance.email, subject, message)
+            date_msg = datetime.strftime(data_obj, '%d/%m/%Y às %H:%M')
+            instance = UserProfile.objects.get(pk=data['chosen_barber_id'])
+            subject = 'BarberShop'
+            message = f'O cliente {user.username} fez um novo agendamento para o dia {schedule.day} {date_msg}'
+            send_email(instance.email, subject, message)
 
             return Response({'message': 'Agendamento feito com sucesso'}, status=status.HTTP_200_OK)
         except Exception as error:
-            print(error)
+            sentry_sdk.capture_exception(error)
             return Response({'message': 'Erro ao marcar agendamento'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=False, methods=['PATCH'], permission_classes=[IsAuthenticated])
@@ -460,6 +460,7 @@ class SchedulesViewset(ModelViewSet):
 
             current_date = today
             while current_date <= end_date:
+                current_date += timedelta(days=1)
                 if is_working_day(day, current_date):
                     available_times = get_available_times_for_day(day, current_date)
 
@@ -469,11 +470,9 @@ class SchedulesViewset(ModelViewSet):
                     ).values_list('date__time', flat=True)
 
                     available_times = [time for time in available_times if time not in scheduled_times]
-                    current_date += timedelta(days=1)
                     available_times_all_days.append(
                         {'future_date': current_date.strftime('%Y-%m-%d'), 'times': available_times}
                     )
-                    break
 
             return Response(
                 {
