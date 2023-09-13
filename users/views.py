@@ -27,10 +27,10 @@ class UserViewset(ModelViewSet):
             first_name = data['full_name'].split(' ', 1)[0]
 
             user = UserProfile.objects.create(
-                username = first_name,
-                full_name = data['full_name'],
-                email = data['email'],
-                token_google = data['token_google']
+                username=first_name,
+                full_name=data['full_name'],
+                email=data['email'],
+                token_google=data['token_google']
             )
 
             user.set_password(data['password'])

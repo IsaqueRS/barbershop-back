@@ -47,6 +47,7 @@ class CompanysViewSet(ModelViewSet):
                 business_hours=business_hours
             )
             company.owner.add(user.id)
+            company.employees.add(data.get('employees', None))
             return Response({'message': 'Barbearia Cadastrada.'}, status=status.HTTP_200_OK)
         except Exception as error:
             sentry_sdk.capture_exception(error)
@@ -98,7 +99,7 @@ class CompanysViewSet(ModelViewSet):
     def companys_by_user(self, request):
         user = request.user
         try:
-            companys_user = Company.objects.filter(owner=user)
+            companys_user = Company.objects.filter(Q(owner=user) | Q(employees=user))
             serializer = CompanysSerializers(companys_user, many=True)
             return Response({'message': 'Sucesso', 'companys_user': serializer.data}, status=status.HTTP_200_OK)
         except Exception as error:
@@ -262,10 +263,10 @@ class SchedulesViewset(ModelViewSet):
                 data=data_obj
             )
             date_msg = datetime.strftime(data_obj, '%d/%m/%Y às %H:%M')
-            instance = UserProfile.objects.get(pk=data['chosen_barber_id'])
+            instance_email = UserProfile.objects.get(pk=data['chosen_barber_id'])
             subject = 'BarberShop'
             message = f'O cliente {user.username} fez um novo agendamento para o dia {schedule.day} {date_msg}'
-            send_email(instance.email, subject, message)
+            send_email(instance_email.email, subject, message)
 
             return Response({'message': 'Agendamento feito com sucesso'}, status=status.HTTP_200_OK)
         except Exception as error:
