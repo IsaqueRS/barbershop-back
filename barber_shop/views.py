@@ -262,10 +262,10 @@ class SchedulesViewset(ModelViewSet):
                 data=data_obj
             )
             date_msg = datetime.strftime(data_obj, '%d/%m/%Y às %H:%M')
-            instance = UserProfile.objects.get(pk=data['chosen_barber_id'])
+            instance_email = UserProfile.objects.get(pk=data['chosen_barber_id'])
             subject = 'BarberShop'
             message = f'O cliente {user.username} fez um novo agendamento para o dia {schedule.day} {date_msg}'
-            send_email(instance.email, subject, message)
+            send_email(instance_email.email, subject, message)
 
             return Response({'message': 'Agendamento feito com sucesso'}, status=status.HTTP_200_OK)
         except Exception as error:
