@@ -72,6 +72,7 @@ class CompanysViewSet(ModelViewSet):
 
             company = Company.objects.get(id=data['company_id'])
             company.name = data['name']
+            company.owner_is_employee = data['owner_is_employee']
             company.phone = data['phone']
             company.cep = data['cep']
             company.city = data['city']
@@ -81,6 +82,13 @@ class CompanysViewSet(ModelViewSet):
             company.instagram_link = data['instagram_link']
             company.facebook_link = data['facebook_link']
             company.business_hours = business_hours
+
+            if company.owner_is_employee == True:
+                company.employees.add(user.id)
+                company.employees.add(data.get('employees', None))
+            else:
+                company.employees.add(data.get('employees', None))
+
             company.save()
 
             return Response({'message': 'Barbearia atualizada com sucesso.'}, status=status.HTTP_200_OK)
