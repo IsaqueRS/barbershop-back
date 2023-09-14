@@ -32,7 +32,10 @@ class FormSchedules(forms.ModelForm):
         if user.type == 'cliente':
             self.fields['confirmed_by_barber'].disabled = True
             self.fields['user_canceled'].disabled = False
-            self.fields['date'].disabled = False
+            self.fields['date'].disabled = True
+        elif user.type == 'barbeiro':
+            self.fields['confirmed_by_barber'].disabled = True
+            self.fields['user_canceled'].disabled = True
 
 
 class SchedulesAdmin(admin.ModelAdmin):
