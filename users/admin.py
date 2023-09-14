@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import UserProfile
+from .models import UserProfile, Barbers
 from django import forms
 
 
@@ -26,4 +26,14 @@ class UserProfileAdmin(UserAdmin):
     list_display_links = ['id', 'email']
 
 
+class BarbersAdmin(admin.ModelAdmin):
+    list_display = ['company', 'barber', 'email_barber']
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == 'barber':
+            kwargs['queryset'] = UserProfile.objects.filter(type='barbeiro')
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+
 admin.site.register(UserProfile, UserProfileAdmin)
+admin.site.register(Barbers, BarbersAdmin)
