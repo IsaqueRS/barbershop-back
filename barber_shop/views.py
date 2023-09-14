@@ -36,6 +36,7 @@ class CompanysViewSet(ModelViewSet):
 
             company = Company.objects.create(
                 name=data['name'],
+                owner_is_employee=data['owner_is_employee'],
                 phone=data['phone'],
                 cep=data['cep'],
                 city=data['city'],
@@ -47,7 +48,12 @@ class CompanysViewSet(ModelViewSet):
                 business_hours=business_hours
             )
             company.owner.add(user.id)
-            company.employees.add(data.get('employees', None))
+            if company.owner_is_employee == True:
+                company.employees.add(user.id)
+                company.employees.add(data.get('employees', None))
+            else:
+                company.employees.add(data.get('employees', None))
+
             return Response({'message': 'Barbearia Cadastrada.'}, status=status.HTTP_200_OK)
         except Exception as error:
             sentry_sdk.capture_exception(error)
