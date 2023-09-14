@@ -6,7 +6,7 @@ from barber_shop.models import Company
 TYPE_USER = (
     ('cliente', 'Cliente'),
     ('barbeiro', 'Barbeiro'),
-    ('desenvolvedor_dono', 'Desenvolvedor dono')
+    ('dono', 'Dono')
 )
 
 
@@ -15,14 +15,14 @@ class UserProfile(AbstractUser):
     REQUIRED_FIELDS = ['username']
     username = models.CharField('Nome', max_length=40, null=True, blank=True)
     type = models.CharField('Tipo do usuário', choices=TYPE_USER, max_length=50, default='cliente')
-    owner_company = models.ForeignKey(Company, related_name="distributor_user", verbose_name="Gerente de", on_delete=models.SET_NULL, blank=True, null=True)
+    owner_company = models.ForeignKey(Company, related_name="company_owner", verbose_name="Gerente de",
+                                      on_delete=models.SET_NULL, blank=True, null=True)
     owner = models.BooleanField('Dono de alguma barbearia?', default=False)
     full_name = models.CharField("Nome Completo", max_length=512, blank=True, null=True)
     email = models.EmailField('E-mail', unique=True)
     image = models.ImageField('Foto de perfil', blank=True, null=True)
     description = models.TextField('Descrição de usuário', max_length=500, default='', blank=True, null=True)
     token_google = models.TextField('Token', default='', max_length=500)
-    
 
     groups = models.ManyToManyField(
         "auth.Group",
@@ -40,4 +40,17 @@ class UserProfile(AbstractUser):
     )
 
     def __str__(self):
-        return self.username  
+        return self.username
+
+
+class Barbers(models.Model):
+    company = models.ForeignKey(Company, verbose_name='Barbearia', on_delete=models.CASCADE)
+    barber = models.ForeignKey(UserProfile, verbose_name='Barbeiro', on_delete=models.CASCADE)
+    email_barber = models.EmailField('Email do barbeiro', unique=True)
+
+    def __str__(self):
+        return str(f"{self.company} - {self.barber} - {self.email_barber}")
+
+    class Meta:
+        verbose_name = 'Barbeiro'
+        verbose_name_plural = 'Barbeiros'
