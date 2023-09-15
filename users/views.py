@@ -163,12 +163,12 @@ class BarberViewSet(ModelViewSet):
     @action(detail=False, methods=['GET'], permission_classes=[AllowAny])
     def list_all_barbers(self, request):
         try:
-            barbers = Barbers.obejcts.all()
+            barbers = Barbers.objects.all()
             serializer = BarbersSerializer(barbers, many=True)
             return Response({'message': 'Barbeiros encontrados', 'barbers': serializer.data}, status=status.HTTP_200_OK)
         except Exception as error:
             print(error)
-            return Response({'message': 'Erroa o listar barbeiros!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({'message': 'Erro ao listar barbeiros!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=False, methods=['PATCH'], permission_classes=[IsAuthenticated])
     def update_barber(self, request):
@@ -176,26 +176,24 @@ class BarberViewSet(ModelViewSet):
         data = request.data
         try:
             if user.type == 'dono':
-                barber = Barbers.objects.get(id=data['barber_id'])
-                barber.company = data['company_id']
-                barber.email_barber = data['email_barber']
-                barber.save()
+                Barbers.objects.filter(pk=data['id']).update(
+                    barber_id=data.get('barber_id'),
+                    company_id=data.get('company_id'),
+                    email_barber=data.get('email_barber')
+                )
                 return Response({'message': 'Barbeiro atualizado com sucesso'}, status=status.HTTP_200_OK)
             else:
                 return Response({'message': 'Apenas o dono da barbearia pode atualizar barbeiros'},
                                 status=status.HTTP_401_UNAUTHORIZED)
-        except ObjectDoesNotExist:
-            return Response({'message': 'Barbeiro não encontrado!'},
-                            status=status.HTTP_404_NOT_FOUND)
         except Exception as error:
             print(error)
             return Response({'message': 'Erro ao atualizar barbeiro!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=False, methods=['GET'], permission_classes=[AllowAny])
     def barber_by_id(self, request):
-        data = request.data
+        params = request.query_params
         try:
-            barber = Barbers.objects.get(id=data['barber_id'])
+            barber = Barbers.objects.get(id=params['barber_id'])
             serializer = BarbersSerializer(barber)
             return Response({'message': 'Barbeiro encontrado com sucesso', 'barber': serializer.data}, status=status.HTTP_200_OK)
         except ObjectDoesNotExist:
@@ -242,4 +240,4 @@ class BarberViewSet(ModelViewSet):
             return Response({'message': 'Barbeiro(s) encontrado(s)', 'barbers': serializer.data}, status=status.HTTP_200_OK)
         except Exception as error:
             print(error)
-            return Response({'message': 'Erro ao buscar barbeiro'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({'message': 'Erro ao buscar barbeiros'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
