@@ -12,3 +12,4 @@ class BarbersSerializer(serializers.ModelSerializer):
     class Meta:
         model = Barbers
         fields = '__all__'
+        depth = 1
