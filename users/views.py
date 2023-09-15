@@ -177,9 +177,9 @@ class BarberViewSet(ModelViewSet):
         try:
             if user.type == 'dono':
                 Barbers.objects.filter(pk=data['id']).update(
-                    barber_id=data.get('barber_id'),
-                    company_id=data.get('company_id'),
-                    email_barber=data.get('email_barber')
+                    barber_id=data['barber_id'],
+                    company_id=data['company_id'],
+                    email_barber=data['email_barber']
                 )
                 return Response({'message': 'Barbeiro atualizado com sucesso'}, status=status.HTTP_200_OK)
             else:
