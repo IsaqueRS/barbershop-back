@@ -247,7 +247,7 @@ class SchedulesViewset(ModelViewSet):
             data_str = data['date']
             data_obj = datetime.strptime(data_str, '%d/%m/%Y %H:%M')
 
-            schedules_existing = SchedulesDays.objects.filter(data=data_obj).exists()
+            schedules_existing = Schedules.objects.filter(date=data_obj).exists()
             if schedules_existing:
                 return Response({'message': 'já existe um agendamento para este horário!'},
                                 status=status.HTTP_400_BAD_REQUEST)
