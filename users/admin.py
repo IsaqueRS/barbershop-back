@@ -10,7 +10,7 @@ class FormUser(forms.ModelForm):
 
         request = self.Meta.formfield_callback.keywords['request']
 
-        if request.user.type == 'desenvolvedor_dono':
+        if request.user.type == 'dono':
             self.fields['type'].disabled = False
         else:
             self.fields['type'].disabled = True
@@ -18,7 +18,7 @@ class FormUser(forms.ModelForm):
 
 class UserProfileAdmin(UserAdmin):
     ordering = ['id']
-    fieldsets = ('Informações do Usuário', {'fields': ('username', 'type', 'owner', 'password', 'full_name', 'email',
+    fieldsets = ('Informações do Usuário', {'fields': ('username', 'type', 'owner', 'owner_company', 'password', 'full_name', 'email',
                                                        'description', 'image')}),
     form = FormUser
     search_fields = ['email', 'full_name', 'username']
