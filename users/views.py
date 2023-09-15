@@ -8,8 +8,8 @@ from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.response import Response
 
 
-from users.models import UserProfile
-from users.serializers import UserSerializer
+from users.models import UserProfile, Barbers
+from users.serializers import UserSerializer, BarbersSerializer
 
 class UserViewset(ModelViewSet):
     queryset = UserProfile.objects.all()
@@ -135,3 +135,109 @@ class UserViewset(ModelViewSet):
         except Exception as error:
             print(error)
             return Response({'message': 'Erro ao buscar por usuário'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class BarberViewSet(ModelViewSet):
+    queryset = Barbers.objects.all()
+    serializer_class = BarbersSerializer
+    permission_classes = [IsAuthenticated]
+
+    @action(detail=False, methods=['POST'], permission_classes=[IsAuthenticated])
+    def register_barber(self, request):
+        user = request.user
+        data = request.data
+        try:
+            if user.type == 'dono':
+                Barbers.objects.create(
+                    company_id=user.owner_company.id,
+                    barber_id=data['barber_id'],
+                    email_barber=data['email_barber']
+                )
+                return Response({'message': 'Barbeiro registrado com sucesso'}, status=status.HTTP_200_OK)
+            else:
+                return Response({'message': 'Apenas o dono da barbearia pode adicionar novos barbeiros!'}, status=status.HTTP_401_UNAUTHORIZED)
+        except Exception as error:
+            print(error)
+            return Response({'message': 'Error ao registrar novo barbeiro!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['GET'], permission_classes=[AllowAny])
+    def list_all_barbers(self, request):
+        try:
+            barbers = Barbers.objects.all()
+            serializer = BarbersSerializer(barbers, many=True)
+            return Response({'message': 'Barbeiros encontrados', 'barbers': serializer.data}, status=status.HTTP_200_OK)
+        except Exception as error:
+            print(error)
+            return Response({'message': 'Erro ao listar barbeiros!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['PATCH'], permission_classes=[IsAuthenticated])
+    def update_barber(self, request):
+        user = request.user
+        data = request.data
+        try:
+            if user.type == 'dono':
+                Barbers.objects.filter(pk=data['id']).update(
+                    barber_id=data.get('barber_id'),
+                    company_id=data.get('company_id'),
+                    email_barber=data.get('email_barber')
+                )
+                return Response({'message': 'Barbeiro atualizado com sucesso'}, status=status.HTTP_200_OK)
+            else:
+                return Response({'message': 'Apenas o dono da barbearia pode atualizar barbeiros'},
+                                status=status.HTTP_401_UNAUTHORIZED)
+        except Exception as error:
+            print(error)
+            return Response({'message': 'Erro ao atualizar barbeiro!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['GET'], permission_classes=[AllowAny])
+    def barber_by_id(self, request):
+        params = request.query_params
+        try:
+            barber = Barbers.objects.get(id=params['barber_id'])
+            serializer = BarbersSerializer(barber)
+            return Response({'message': 'Barbeiro encontrado com sucesso', 'barber': serializer.data}, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
+            return Response({'message': 'Barbeiro não encontrado!'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as error:
+            print(error)
+            return Response({'message': 'Erro ao buscar por barbeiro!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['DELETE'], permission_classes=[IsAuthenticated])
+    def delete_barber(self, request):
+        user = request.user
+        data = request.data
+        try:
+            if user.type == 'dono':
+                barber = Barbers.objects.get(id=data['barber_id'])
+                barber.delete()
+                return Response({'message': 'Barbeiro deletado com sucesso'}, status=status.HTTP_200_OK)
+            else:
+                return Response({'message': 'Apenas o dono da barbearia pode deletar barbeiros'},
+                                status=status.HTTP_401_UNAUTHORIZED)
+        except ObjectDoesNotExist:
+            return Response({'message': 'Barbeiro não encontrado!'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as error:
+            print(error)
+            return Response({'message': 'Erro ao deletar barbeiro'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['GET'], permission_classes=[IsAuthenticated])
+    def search_barber(self, request):
+        params = request.query_params
+        try:
+            barber = Barbers.objects.filter(barber__username__icontains=params['barber_name'])
+            serializer = BarbersSerializer(barber, many=True)
+            return Response({'message': 'Barbeiro(s) encontrado(s)', 'barbers': serializer.data}, status=status.HTTP_200_OK)
+        except Exception as error:
+            print(error)
+            return Response({'message': 'Erro ao buscar barbeiro'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['GET'], permission_classes=[IsAuthenticated])
+    def barbers_by_company(self, request):
+        params = request.query_params
+        try:
+            barber = Barbers.objects.filter(company_id=params['company_id'])
+            serializer = BarbersSerializer(barber, many=True)
+            return Response({'message': 'Barbeiro(s) encontrado(s)', 'barbers': serializer.data}, status=status.HTTP_200_OK)
+        except Exception as error:
+            print(error)
+            return Response({'message': 'Erro ao buscar barbeiros'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
