@@ -221,3 +221,25 @@ class BarberViewSet(ModelViewSet):
         except Exception as error:
             print(error)
             return Response({'message': 'Erro ao deletar barbeiro'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['GET'], permission_classes=[IsAuthenticated])
+    def search_barber(self, request):
+        params = request.query_params
+        try:
+            barber = Barbers.objects.filter(barber__username__icontains=params['barber_name'])
+            serializer = BarbersSerializer(barber, many=True)
+            return Response({'message': 'Barbeiro(s) encontrado(s)', 'barbers': serializer.data}, status=status.HTTP_200_OK)
+        except Exception as error:
+            print(error)
+            return Response({'message': 'Erro ao buscar barbeiro'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['GET'], permission_classes=[IsAuthenticated])
+    def barbers_by_company(self, request):
+        params = request.query_params
+        try:
+            barber = Barbers.objects.filter(company_id=params['company_id'])
+            serializer = BarbersSerializer(barber, many=True)
+            return Response({'message': 'Barbeiro(s) encontrado(s)', 'barbers': serializer.data}, status=status.HTTP_200_OK)
+        except Exception as error:
+            print(error)
+            return Response({'message': 'Erro ao buscar barbeiro'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
