@@ -48,11 +48,17 @@ class CompanysViewSet(ModelViewSet):
                 business_hours=business_hours
             )
             company.owner.add(user.id)
+
             if company.owner_is_employee == True:
                 company.employees.add(user.id)
-                company.employees.add(data.get('employees', None))
+                employee = data.get('employees', None).split(',')
+                for add_employee in employee:
+                    company.employees.add(int(add_employee))
+
             else:
-                company.employees.add(data.get('employees', None))
+                employee = data.get('employees', None).split(',')
+                for add_employee in employee:
+                    company.employees.add(int(add_employee))
 
             return Response({'message': 'Barbearia Cadastrada.'}, status=status.HTTP_200_OK)
         except Exception as error:
