@@ -13,6 +13,7 @@ class CompanyAdmin(admin.ModelAdmin):
          ('Informações de Contato', {'fields': ('owner', 'owner_is_employee', 'employees', 'name', 'phone',
                                                 'instagram_link', 'facebook_link')}),
          ('Informações de Endereço', {'fields': ('cep', 'state', 'city', 'neighborhood', 'street', 'number')}),
+         ('Logo', {'fields': ('logo',)}),
                  )
     inlines = [
         DaysInline
