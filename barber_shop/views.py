@@ -36,6 +36,7 @@ class CompanysViewSet(ModelViewSet):
 
             company = Company.objects.create(
                 name=data['name'],
+                logo=data['logo'],
                 owner_is_employee=data['owner_is_employee'],
                 phone=data['phone'],
                 cep=data['cep'],
@@ -78,6 +79,7 @@ class CompanysViewSet(ModelViewSet):
 
             company = Company.objects.get(id=data['company_id'])
             company.name = data['name']
+            company.logo = data['logo']
             company.owner_is_employee = data['owner_is_employee']
             company.phone = data['phone']
             company.cep = data['cep']
