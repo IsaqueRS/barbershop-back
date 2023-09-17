@@ -91,9 +91,10 @@ class CompanysViewSet(ModelViewSet):
             company.facebook_link = data['facebook_link']
             company.business_hours = business_hours
 
-            employee_ids = [int(emp_id) for emp_id in data.get('employees', '').split(',') if emp_id]
+            employee_ids = [int(emp_id) for emp_id in data.get('employees', None).split(',') if emp_id]
             if company.owner_is_employee == True:
                 employee_ids.append(user.id)
+                company.employees.set(employee_ids)
 
             company.employees.set(employee_ids)
 
