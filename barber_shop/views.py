@@ -90,7 +90,7 @@ class CompanysViewSet(ModelViewSet):
             company.business_hours = business_hours
 
             employee_ids = [int(emp_id) for emp_id in data.get('employees', '').split(',') if emp_id]
-            if company.owner_is_employee:
+            if company.owner_is_employee == True:
                 employee_ids.append(user.id)
 
             company.employees.set(employee_ids)
