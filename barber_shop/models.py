@@ -22,6 +22,7 @@ class Company(models.Model):
     owner_is_employee = models.BooleanField('Dono e funcionário', default=True)
     employees = models.ManyToManyField('users.UserProfile', verbose_name='Funcionários', related_name='employees_barber', blank=True)
     name = models.CharField("Nome da Barbearia", max_length=155, null=False, blank=False)
+    logo = models.ImageField('Logo da barbearia', blank=True, null=True)
     phone = models.CharField("Telefone", max_length=15)
     cep = models.CharField("Cep", max_length=12,)
     city = models.CharField("Cidade", max_length=60)
