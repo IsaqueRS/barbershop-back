@@ -89,11 +89,11 @@ class CompanysViewSet(ModelViewSet):
             company.facebook_link = data['facebook_link']
             company.business_hours = business_hours
 
-            if company.owner_is_employee == True:
-                company.employees.add(user.id)
-                company.employees.add(data.get('employees', None))
-            else:
-                company.employees.add(data.get('employees', None))
+            employee_ids = [int(emp_id) for emp_id in data.get('employees', '').split(',') if emp_id]
+            if company.owner_is_employee:
+                employee_ids.append(user.id)
+
+            company.employees.set(employee_ids)
 
             company.save()
 
@@ -101,7 +101,7 @@ class CompanysViewSet(ModelViewSet):
         except ObjectDoesNotExist:
             return Response({'message': 'Barbearia não encontrada'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as error:
-            sentry_sdk.capture_exception(error)
+            print(error)
             return Response({'message': 'Erro no cadastro de usuário.', 'error': str(error)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
