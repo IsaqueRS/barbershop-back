@@ -72,44 +72,46 @@ class CompanysViewSet(ModelViewSet):
         user = request.user
         data = request.data
         try:
-            company = Company.objects.all()
-            if user in company.owner.all():
-                business_hours_array = data['business_hours']
-                business_hours = []
-                for business_hour in business_hours_array:
-                    business_hours.append(business_hour)
 
-                company = Company.objects.get(id=data['company_id'])
-                company.name = data['name']
-                company.logo = data['logo']
-                company.owner_is_employee = data['owner_is_employee']
-                company.phone = data['phone']
-                company.cep = data['cep']
-                company.city = data['city']
-                company.neighborhood = data['neighborhood']
-                company.state = data['state']
-                company.street = data['cep']
-                company.instagram_link = data['instagram_link']
-                company.facebook_link = data['facebook_link']
-                company.business_hours = business_hours
+            business_hours_array = data['business_hours']
+            business_hours = []
+            for business_hour in business_hours_array:
+                business_hours.append(business_hour)
 
-                employee_ids = [int(emp_id) for emp_id in data.get('employees', None).split(',') if emp_id]
-                if company.owner_is_employee == True:
-                    employee_ids.append(user.id)
-                    company.employees.set(employee_ids)
+            company = Company.objects.get(id=data['company_id'])
 
+            if user not in company.owner.all():
+                return Response({'message': 'Apenas o dono da barbearia pode atualiza-lá'},
+                                status=status.HTTP_401_UNAUTHORIZED)
+
+            company.name = data['name']
+            company.logo = data['logo']
+            company.owner_is_employee = data['owner_is_employee']
+            company.phone = data['phone']
+            company.cep = data['cep']
+            company.city = data['city']
+            company.neighborhood = data['neighborhood']
+            company.state = data['state']
+            company.street = data['cep']
+            company.instagram_link = data['instagram_link']
+            company.facebook_link = data['facebook_link']
+            company.business_hours = business_hours
+
+            employee_ids = [int(emp_id) for emp_id in data.get('employees', None).split(',') if emp_id]
+            if company.owner_is_employee == True:
+                employee_ids.append(user.id)
                 company.employees.set(employee_ids)
 
-                company.save()
+            company.employees.set(employee_ids)
 
-                return Response({'message': 'Barbearia atualizada com sucesso.'}, status=status.HTTP_200_OK)
-            else:
-                return Response({'message': 'Apenas o dono da barbearia pode atualiza-lá'}, status=status.HTTP_401_UNAUTHORIZED)
+            company.save()
+
+            return Response({'message': 'Barbearia atualizada com sucesso.'}, status=status.HTTP_200_OK)
         except ObjectDoesNotExist:
             return Response({'message': 'Barbearia não encontrada'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as error:
             print(error)
-            return Response({'message': 'Erro no cadastro de usuário.', 'error': str(error)},
+            return Response({'message': 'Erro ao atualizar barbearia', 'error': str(error)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=False, methods=['GET'], permission_classes=[AllowAny])
