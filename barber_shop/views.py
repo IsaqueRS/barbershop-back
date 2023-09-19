@@ -403,7 +403,9 @@ class SchedulesViewset(ModelViewSet):
         params = request.query_params
         try:
             now = datetime.now()
-            schedules = Schedules.objects.filter(barbershop__id=params['company_id'], date__gte=now).order_by('date')
+            schedules = Schedules.objects.filter(
+                barbershop__id=params['company_id'], date__gte=now, confirmed_by_barber=True, user_canceled=False
+            ).order_by('date')
             serializer = SchedulesSerializer(schedules, many=True)
             return Response(
                 {'message': 'Cortes agendados até o momento na sua barbearia', 'schedules': serializer.data})
