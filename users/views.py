@@ -147,12 +147,23 @@ class BarberViewSet(ModelViewSet):
         user = request.user
         data = request.data
         try:
+            barber_id = data['barber_id']
+            type_user = UserProfile.objects.get(id=barber_id)
+
+            if UserProfile.objects.filter(email__iexact=data['email_barber']):
+                return Response({'message': 'Um usuário com este email já existe.'}, status=status.HTTP_409_CONFLICT)
+
+            if type_user.type != 'barbeiro':
+                return Response({'message': 'Somente usuários do tipo barbeiro podem ser registrados'},
+                                status=status.HTTP_400_BAD_REQUEST)
+
             if user.type == 'dono':
                 Barbers.objects.create(
                     company_id=user.owner_company.id,
-                    barber_id=data['barber_id'],
+                    barber_id=barber_id,
                     email_barber=data['email_barber']
                 )
+
                 return Response({'message': 'Barbeiro registrado com sucesso'}, status=status.HTTP_200_OK)
             else:
                 return Response({'message': 'Apenas o dono da barbearia pode adicionar novos barbeiros!'}, status=status.HTTP_401_UNAUTHORIZED)
@@ -175,12 +186,24 @@ class BarberViewSet(ModelViewSet):
         user = request.user
         data = request.data
         try:
+            barber_id = data['barber_id']
+            type_user = UserProfile.objects.get(id=barber_id)
+            email = data['email_barber']
+
+            if UserProfile.objects.filter(email__iexact=email):
+                return Response({'message': 'Um usuário com este email já existe.'}, status=status.HTTP_409_CONFLICT)
+
+            if type_user.type != 'barbeiro':
+                return Response({'message': 'Somente usuários do tipo barbeiro podem ser registrados'},
+                                status=status.HTTP_400_BAD_REQUEST)
+
             if user.type == 'dono':
                 Barbers.objects.filter(pk=data['id']).update(
                     barber_id=data['barber_id'],
                     company_id=data['company_id'],
-                    email_barber=data['email_barber']
+                    email_barber=email
                 )
+
                 return Response({'message': 'Barbeiro atualizado com sucesso'}, status=status.HTTP_200_OK)
             else:
                 return Response({'message': 'Apenas o dono da barbearia pode atualizar barbeiros'},
