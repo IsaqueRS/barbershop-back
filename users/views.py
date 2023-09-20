@@ -147,12 +147,19 @@ class BarberViewSet(ModelViewSet):
         user = request.user
         data = request.data
         try:
+
+            if UserProfile.objects.filter(email__iexact=data['email_barber']):
+                return Response({'message': 'Um usuário com este email já existe.'}, status=status.HTTP_409_CONFLICT)
+
             if user.type == 'dono':
-                Barbers.objects.create(
+                barber = Barbers.objects.create(
                     company_id=user.owner_company.id,
                     barber_id=data['barber_id'],
                     email_barber=data['email_barber']
                 )
+                if barber.barber.type != 'barbeiro':
+                    return Response({'message': 'Somente usuários do tipo barbeiro podem ser registrados'}, status=status.HTTP_400_BAD_REQUEST)
+
                 return Response({'message': 'Barbeiro registrado com sucesso'}, status=status.HTTP_200_OK)
             else:
                 return Response({'message': 'Apenas o dono da barbearia pode adicionar novos barbeiros!'}, status=status.HTTP_401_UNAUTHORIZED)
@@ -175,12 +182,18 @@ class BarberViewSet(ModelViewSet):
         user = request.user
         data = request.data
         try:
+            if UserProfile.objects.filter(email__iexact=data['email_barber']):
+                return Response({'message': 'Um usuário com este email já existe.'}, status=status.HTTP_409_CONFLICT)
+
             if user.type == 'dono':
-                Barbers.objects.filter(pk=data['id']).update(
+                update_barber = Barbers.objects.filter(pk=data['id']).update(
                     barber_id=data['barber_id'],
                     company_id=data['company_id'],
                     email_barber=data['email_barber']
                 )
+                if update_barber.barber.type != 'barbeiro':
+                    return Response({'message': 'Somente usuários do tipo barbeiro podem ser registrados'}, status=status.HTTP_400_BAD_REQUEST)
+
                 return Response({'message': 'Barbeiro atualizado com sucesso'}, status=status.HTTP_200_OK)
             else:
                 return Response({'message': 'Apenas o dono da barbearia pode atualizar barbeiros'},
