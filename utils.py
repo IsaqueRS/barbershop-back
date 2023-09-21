@@ -80,7 +80,7 @@ def is_working_day(day, date):
     )
 
 
-def generate_random_password(length=12):
+def generate_random_password():
     alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-    password = ''.join(secrets.choice(alphabet) for i in range(length))
+    password = ''.join(secrets.choice(alphabet) for i in range(12))
     return password
