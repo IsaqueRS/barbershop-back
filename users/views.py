@@ -11,6 +11,8 @@ from rest_framework.response import Response
 from users.models import UserProfile, Barbers
 from users.serializers import UserSerializer, BarbersSerializer
 
+from utils import generate_random_password, send_email
+
 class UserViewset(ModelViewSet):
     queryset = UserProfile.objects.all()
     serializer_class = UserSerializer
@@ -158,11 +160,14 @@ class BarberViewSet(ModelViewSet):
                                 status=status.HTTP_400_BAD_REQUEST)
 
             if user.type == 'dono':
+                random_password = generate_random_password()
                 Barbers.objects.create(
                     company_id=user.owner_company.id,
                     barber_id=barber_id,
                     email_barber=data['email_barber']
                 )
+                message = f'Sua senha de acesso é {random_password}'
+                send_email(data['email_barber'], 'Barbershop', message)
 
                 return Response({'message': 'Barbeiro registrado com sucesso'}, status=status.HTTP_200_OK)
             else:
