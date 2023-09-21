@@ -29,6 +29,7 @@ class UserProfileAdmin(UserAdmin):
 class BarbersAdmin(admin.ModelAdmin):
     list_display = ['company', 'barber', 'email_barber']
     list_filter = ['company']
+    list_display_links = ['company', 'barber']
     search_fields = ['barber__username']
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
