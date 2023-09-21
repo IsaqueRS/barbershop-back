@@ -46,6 +46,7 @@ class UserProfile(AbstractUser):
 class Barbers(models.Model):
     company = models.ForeignKey(Company, verbose_name='Barbearia', on_delete=models.CASCADE)
     barber = models.ForeignKey(UserProfile, verbose_name='Barbeiro', on_delete=models.CASCADE)
+    password = models.CharField('Senha', max_length=12, default='')
     profile_photo = models.ImageField('Foto do barbeiro', help_text='(opcional)', blank=True, null=True)
     email_barber = models.EmailField('Email do barbeiro', unique=True)
 
