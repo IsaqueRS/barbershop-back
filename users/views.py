@@ -164,6 +164,7 @@ class BarberViewSet(ModelViewSet):
                 Barbers.objects.create(
                     company_id=user.owner_company.id,
                     barber_id=barber_id,
+                    profile_photo=data.get('profile_photo', None),
                     email_barber=data['email_barber']
                 )
                 message = f'Sua senha de acesso é {random_password}'
@@ -206,6 +207,7 @@ class BarberViewSet(ModelViewSet):
                 Barbers.objects.filter(pk=data['id']).update(
                     barber_id=data['barber_id'],
                     company_id=data['company_id'],
+                    profile_photo=data.get('profile_photo', None),
                     email_barber=email
                 )
 
