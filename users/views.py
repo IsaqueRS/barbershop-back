@@ -6,6 +6,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.authtoken.models import Token
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.response import Response
+from django.contrib.auth import authenticate
 
 
 from users.models import UserProfile, Barbers
@@ -161,12 +162,13 @@ class BarberViewSet(ModelViewSet):
 
             if user.type == 'dono':
                 random_password = generate_random_password()
-                Barbers.objects.create(
+                barber = Barbers.objects.create(
                     company_id=user.owner_company.id,
                     barber_id=barber_id,
                     profile_photo=data.get('profile_photo', None),
                     email_barber=data['email_barber']
                 )
+                barber.password = random_password
                 message = f'Sua senha de acesso é {random_password}'
                 send_email(data['email_barber'], 'Barbershop', message)
 
@@ -176,6 +178,33 @@ class BarberViewSet(ModelViewSet):
         except Exception as error:
             print(error)
             return Response({'message': 'Error ao registrar novo barbeiro!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['POST'], permission_classes=[IsAuthenticated])
+    def login_barber(self, request):
+        user = request.user
+        data = request.data
+        try:
+            email = data['email'].strip()
+            if user.type == 'barbeiro' or user.type == 'dono':
+                if UserProfile.objects.filter(email__iexact=email):
+                    user_authenticate = authenticate(request, username=email, password=data['password'])
+                    if user_authenticate:
+                        token = Token.objects.get_or_create(user=user_authenticate)
+                        serializer = UserSerializer(user_authenticate)
+                        return Response({
+                            'message': 'Login realizado com sucesso',
+                            'token': token[0].__str__(),
+                            'user': serializer.data
+                            }, status=status.HTTP_200_OK)
+                    else:
+                        return Response({'message': 'Senha inválida'}, status=status.HTTP_401_UNAUTHORIZED)
+                else:
+                    return Response({'message': 'Não existe usuário com o email informado'}, status=status.HTTP_401_UNAUTHORIZED)
+            else:
+                return Response({'message': 'Apenas usuários considerados barbeiros podem realizar este login!'}, status=status.HTTP_401_UNAUTHORIZED)
+        except Exception as error:
+            print(error)
+            return Response({'message': 'Erro ao realizar login'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=False, methods=['GET'], permission_classes=[AllowAny])
     def list_all_barbers(self, request):
