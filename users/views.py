@@ -219,7 +219,6 @@ class BarberViewSet(ModelViewSet):
             print(error)
             return Response({'message': 'Error ao registrar novo barbeiro!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-
     @action(detail=False, methods=['POST'], permission_classes=[IsAuthenticated])
     def login_barber(self, request):
         user = request.user
