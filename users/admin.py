@@ -27,7 +27,10 @@ class UserProfileAdmin(UserAdmin):
 
 
 class BarbersAdmin(admin.ModelAdmin):
-    list_display = ['company', 'barber', 'email_barber']
+    fieldsets = (
+        ('Informações do barbeiro', {'fields': ('company', 'barber', 'email_barber', 'profile_photo')}),
+    )
+    list_display = ['id', 'company', 'barber', 'email_barber']
     list_filter = ['company']
     list_display_links = ['company', 'barber']
     search_fields = ['barber__username']
