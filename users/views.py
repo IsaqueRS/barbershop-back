@@ -193,7 +193,10 @@ class BarberViewSet(ModelViewSet):
             barber_id = data['barber_id']
             type_user = UserProfile.objects.get(id=barber_id)
 
-            if UserProfile.objects.filter(email__iexact=data['email_barber']):
+            if (
+                UserProfile.objects.filter(email__iexact=data['email_barber']) or
+                Barbers.objects.filter(email_barber__iexact=data['email_barber'])
+            ):
                 return Response({'message': 'Um usuário com este email já existe.'}, status=status.HTTP_409_CONFLICT)
 
             if type_user.type != 'barbeiro':
