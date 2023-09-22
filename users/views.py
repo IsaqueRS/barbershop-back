@@ -48,6 +48,46 @@ class UserViewset(ModelViewSet):
             #sentry_sdk.capture_exception(error)
             return Response({'message': 'Erro no cadastro de usuário.', 'error': str(error)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+    @action(detail=False, methods=['POST'], permission_classes=[AllowAny])
+    def login(self, request):
+        user = request.user
+        data = request.data
+        try:
+            email = data['email'].strip()
+            password = data['password']
+            if UserProfile.objects.filter(email__iexact=email) or Barbers.objects.filter(email_barber__iexact=email):
+                user_authenticate = UserProfile.objects.get(email=email, password=password)
+                if user.type == 'cliente' or 'dono':
+                    if user_authenticate:
+                        serializer = UserSerializer(user_authenticate)
+                        return Response({
+                            'message': 'Login realizado com sucesso',
+                            'user': serializer.data
+                        }, status=status.HTTP_200_OK)
+                    else:
+                        return Response({'message': 'Senha inválida'}, status=status.HTTP_401_UNAUTHORIZED)
+                else:
+                    if user.type == 'barbeiro':
+                        barber_authenticate = Barbers.objects.get(email_barber=email, password=password)
+                        if barber_authenticate:
+                            serializer = BarbersSerializer(barber_authenticate)
+                            return Response({
+                                'message': 'Login realizado com sucesso',
+                                'user': serializer.data
+                            }, status=status.HTTP_200_OK)
+                        else:
+                            return Response({'message': 'Senha inválida'}, status=status.HTTP_401_UNAUTHORIZED)
+                    else:
+                        return Response({
+                            'message': 'Você não possui permissão para realizar o cadastro'
+                        }, status=status.HTTP_401_UNAUTHORIZED)
+            else:
+                return Response({'message': 'Não existe usuário com o email informado'},
+                                status=status.HTTP_404_NOT_FOUND)
+        except Exception as error:
+            print(error)
+            return Response({'message': 'Erro ao realizar login'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
     @action(detail=False, methods=['DELETE'], permission_classes=[IsAuthenticated])
     def delete_user(self, request):
         try:
@@ -179,28 +219,6 @@ class BarberViewSet(ModelViewSet):
             print(error)
             return Response({'message': 'Error ao registrar novo barbeiro!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    @action(detail=False, methods=['POST'], permission_classes=[AllowAny])
-    def login(self, request):
-        data = request.data
-        try:
-            email = data['email'].strip()
-            if UserProfile.objects.filter(email__iexact=email):
-                user_authenticate = authenticate(request, username=email, password=data['password'])
-                if user_authenticate:
-                    token = Token.objects.get_or_create(user=user_authenticate)
-                    serializer = UserSerializer(user_authenticate)
-                    return Response({
-                        'message': 'Login realizado com sucesso',
-                        'token': token[0].__str__(),
-                        'user': serializer.data
-                    }, status=status.HTTP_200_OK)
-                else:
-                    return Response({'message': 'Senha inválida'}, status=status.HTTP_401_UNAUTHORIZED)
-            else:
-                return Response({'message': 'Não existe usuário com o email informado'}, status=status.HTTP_404_NOT_FOUND)
-        except Exception as error:
-            print(error)
-            return Response({'message': 'Erro ao realizar login'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=False, methods=['POST'], permission_classes=[IsAuthenticated])
     def login_barber(self, request):
@@ -209,7 +227,7 @@ class BarberViewSet(ModelViewSet):
         try:
             email = data['email_barber'].strip()
             password = data['password']
-            if user.type == 'barbeiro' or user.type == 'dono':
+            if user.type == 'barbeiro':
                 if UserProfile.objects.filter(email__iexact=email) or Barbers.objects.filter(email_barber__iexact=email):
                     user_authenticate = Barbers.objects.get(email_barber=email, password=password)
                     if user_authenticate:
