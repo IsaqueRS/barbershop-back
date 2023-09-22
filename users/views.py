@@ -219,7 +219,6 @@ class BarberViewSet(ModelViewSet):
             print(error)
             return Response({'message': 'Error ao registrar novo barbeiro!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-
     @action(detail=False, methods=['POST'], permission_classes=[IsAuthenticated])
     def login_barber(self, request):
         user = request.user
@@ -227,7 +226,7 @@ class BarberViewSet(ModelViewSet):
         try:
             email = data['email_barber'].strip()
             password = data['password']
-            if user.type == 'barbeiro':
+            if user.type == 'barbeiro' or 'dono':
                 if UserProfile.objects.filter(email__iexact=email) or Barbers.objects.filter(email_barber__iexact=email):
                     user_authenticate = Barbers.objects.get(email_barber=email, password=password)
                     if user_authenticate:
