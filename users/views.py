@@ -67,21 +67,20 @@ class UserViewset(ModelViewSet):
                         }, status=status.HTTP_200_OK)
                     else:
                         return Response({'message': 'Senha inválida'}, status=status.HTTP_401_UNAUTHORIZED)
-                else:
-                    if user.type == 'barbeiro':
-                        barber_authenticate = Barbers.objects.get(email_barber=email, password=password)
-                        if barber_authenticate:
-                            serializer = BarbersSerializer(barber_authenticate)
-                            return Response({
-                                'message': 'Login realizado com sucesso',
-                                'user': serializer.data
-                            }, status=status.HTTP_200_OK)
-                        else:
-                            return Response({'message': 'Senha inválida'}, status=status.HTTP_401_UNAUTHORIZED)
-                    else:
+                elif user.type == 'barbeiro':
+                    barber_authenticate = Barbers.objects.get(email_barber=email, password=password)
+                    if barber_authenticate:
+                        serializer = BarbersSerializer(barber_authenticate)
                         return Response({
-                            'message': 'Você não possui permissão para realizar o cadastro'
-                        }, status=status.HTTP_401_UNAUTHORIZED)
+                            'message': 'Login realizado com sucesso',
+                            'user': serializer.data
+                        }, status=status.HTTP_200_OK)
+                    else:
+                        return Response({'message': 'Senha inválida'}, status=status.HTTP_401_UNAUTHORIZED)
+                else:
+                    return Response({
+                        'message': 'Você não possui permissão para realizar o cadastro'
+                    }, status=status.HTTP_401_UNAUTHORIZED)
             else:
                 return Response({'message': 'Não existe usuário com o email informado'},
                                 status=status.HTTP_404_NOT_FOUND)
