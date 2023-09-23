@@ -8,11 +8,11 @@ from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.response import Response
 from django.contrib.auth import authenticate
 
-
 from users.models import UserProfile, Barbers
 from users.serializers import UserSerializer, BarbersSerializer
 
 from utils import generate_random_password, send_email
+
 
 class UserViewset(ModelViewSet):
     queryset = UserProfile.objects.all()
@@ -40,13 +40,14 @@ class UserViewset(ModelViewSet):
             user.save()
             token = Token.objects.create(user=user)
             # token = Token.objects.create(user=users)
-            #UserViewSet.send_email_confirm_user(user, request)
+            # UserViewSet.send_email_confirm_user(user, request)
             return Response({'message': 'Usuário Cadastrado.'}, status=status.HTTP_200_OK)
             # return Response({'msg': 'Usuário Cadastrado.', 'token': user.auth_token.key, 'user': serializer.data}, status=status.HTTP_200_OK)
         except Exception as error:
             print(error)
-            #sentry_sdk.capture_exception(error)
-            return Response({'message': 'Erro no cadastro de usuário.', 'error': str(error)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            # sentry_sdk.capture_exception(error)
+            return Response({'message': 'Erro no cadastro de usuário.', 'error': str(error)},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=False, methods=['POST'], permission_classes=[AllowAny])
     def login(self, request):
@@ -194,8 +195,8 @@ class BarberViewSet(ModelViewSet):
             type_user = UserProfile.objects.get(id=barber_id)
 
             if (
-                UserProfile.objects.filter(email__iexact=data['email_barber']) or
-                Barbers.objects.filter(email_barber__iexact=data['email_barber'])
+                    UserProfile.objects.filter(email__iexact=data['email_barber']) or
+                    Barbers.objects.filter(email_barber__iexact=data['email_barber'])
             ):
                 return Response({'message': 'Um usuário com este email já existe.'}, status=status.HTTP_409_CONFLICT)
 
@@ -212,15 +213,20 @@ class BarberViewSet(ModelViewSet):
                     password=random_password,
                     email_barber=data['email_barber']
                 )
-                message = f'Sua senha de acesso é {random_password}'
+                message = (
+                            f'O usuário {user.username} cadastrou você na barbearia {user.owner_company}. '
+                            f'Sua senha de acesso é {random_password}'
+                )
                 send_email(data['email_barber'], 'Barbershop', message)
 
                 return Response({'message': 'Barbeiro registrado com sucesso'}, status=status.HTTP_200_OK)
             else:
-                return Response({'message': 'Apenas o dono da barbearia pode adicionar novos barbeiros!'}, status=status.HTTP_401_UNAUTHORIZED)
+                return Response({'message': 'Apenas o dono da barbearia pode adicionar novos barbeiros!'},
+                                status=status.HTTP_401_UNAUTHORIZED)
         except Exception as error:
             print(error)
-            return Response({'message': 'Error ao registrar novo barbeiro!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({'message': 'Error ao registrar novo barbeiro!'},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=False, methods=['POST'], permission_classes=[IsAuthenticated])
     def login_barber(self, request):
@@ -230,20 +236,23 @@ class BarberViewSet(ModelViewSet):
             email = data['email_barber'].strip()
             password = data['password']
             if user.type == 'barbeiro' or 'dono':
-                if UserProfile.objects.filter(email__iexact=email) or Barbers.objects.filter(email_barber__iexact=email):
+                if UserProfile.objects.filter(email__iexact=email) or Barbers.objects.filter(
+                        email_barber__iexact=email):
                     user_authenticate = Barbers.objects.get(email_barber=email, password=password)
                     if user_authenticate:
                         serializer = BarbersSerializer(user_authenticate)
                         return Response({
                             'message': 'Login realizado com sucesso',
                             'user': serializer.data
-                            }, status=status.HTTP_200_OK)
+                        }, status=status.HTTP_200_OK)
                     else:
                         return Response({'message': 'Senha inválida'}, status=status.HTTP_401_UNAUTHORIZED)
                 else:
-                    return Response({'message': 'Não existe usuário com o email informado'}, status=status.HTTP_401_UNAUTHORIZED)
+                    return Response({'message': 'Não existe usuário com o email informado'},
+                                    status=status.HTTP_401_UNAUTHORIZED)
             else:
-                return Response({'message': 'Apenas usuários considerados barbeiros podem realizar este login!'}, status=status.HTTP_403_FORBIDDEN)
+                return Response({'message': 'Apenas usuários considerados barbeiros podem realizar este login!'},
+                                status=status.HTTP_403_FORBIDDEN)
         except Exception as error:
             print(error)
             return Response({'message': 'Erro ao realizar login'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -296,7 +305,8 @@ class BarberViewSet(ModelViewSet):
         try:
             barber = Barbers.objects.get(id=params['barber_id'])
             serializer = BarbersSerializer(barber)
-            return Response({'message': 'Barbeiro encontrado com sucesso', 'barber': serializer.data}, status=status.HTTP_200_OK)
+            return Response({'message': 'Barbeiro encontrado com sucesso', 'barber': serializer.data},
+                            status=status.HTTP_200_OK)
         except ObjectDoesNotExist:
             return Response({'message': 'Barbeiro não encontrado!'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as error:
@@ -310,10 +320,14 @@ class BarberViewSet(ModelViewSet):
         try:
             if user.type == 'dono':
                 barber = Barbers.objects.get(id=data['barber_id'])
-                barber.delete()
-                return Response({'message': 'Barbeiro deletado com sucesso'}, status=status.HTTP_200_OK)
+                if user in barber.company.owner.all():
+                    barber.delete()
+                    return Response({'message': 'Barbeiro deletado com sucesso'}, status=status.HTTP_200_OK)
+                else:
+                    return Response({'message': 'Apenas o dono da barbearia pode deletar barbeiros'},
+                                    status=status.HTTP_401_UNAUTHORIZED)
             else:
-                return Response({'message': 'Apenas o dono da barbearia pode deletar barbeiros'},
+                return Response({'message': 'Apenas o usuários do tipo dono podem deletar barbeiros'},
                                 status=status.HTTP_401_UNAUTHORIZED)
         except ObjectDoesNotExist:
             return Response({'message': 'Barbeiro não encontrado!'}, status=status.HTTP_404_NOT_FOUND)
@@ -327,7 +341,8 @@ class BarberViewSet(ModelViewSet):
         try:
             barber = Barbers.objects.filter(barber__username__icontains=params['barber_name'])
             serializer = BarbersSerializer(barber, many=True)
-            return Response({'message': 'Barbeiro(s) encontrado(s)', 'barbers': serializer.data}, status=status.HTTP_200_OK)
+            return Response({'message': 'Barbeiro(s) encontrado(s)', 'barbers': serializer.data},
+                            status=status.HTTP_200_OK)
         except Exception as error:
             print(error)
             return Response({'message': 'Erro ao buscar barbeiro'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -338,7 +353,8 @@ class BarberViewSet(ModelViewSet):
         try:
             barber = Barbers.objects.filter(company_id=params['company_id'])
             serializer = BarbersSerializer(barber, many=True)
-            return Response({'message': 'Barbeiro(s) encontrado(s)', 'barbers': serializer.data}, status=status.HTTP_200_OK)
+            return Response({'message': 'Barbeiro(s) encontrado(s)', 'barbers': serializer.data},
+                            status=status.HTTP_200_OK)
         except Exception as error:
             print(error)
             return Response({'message': 'Erro ao buscar barbeiros'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
