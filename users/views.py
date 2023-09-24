@@ -24,7 +24,10 @@ class UserViewset(ModelViewSet):
         try:
             email = data['email']
 
-            if UserProfile.objects.filter(email__iexact=email):
+            if (
+                UserProfile.objects.filter(email__iexact=email) or
+                Barbers.objects.filter(email_barber__iexact=email)
+            ):
                 return Response({'message': 'Um usuário com este email já existe.'}, status=status.HTTP_409_CONFLICT)
 
             first_name = data['full_name'].split(' ', 1)[0]
