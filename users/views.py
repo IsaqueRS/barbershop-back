@@ -96,11 +96,11 @@ class UserViewset(ModelViewSet):
             user.delete()
             return Response({'message': 'Sucesso Apagado!'},
                             status=status.HTTP_200_OK)
-
         except UserProfile.DoesNotExist:
             return Response({'message': 'Usuario Nao Existente.'},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as error:
+            print(error)
             return Response({'message': 'Nao Foi Possivel Deletar usuario, Entre em Contato com o Suporte.'},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
