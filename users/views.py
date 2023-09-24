@@ -24,7 +24,10 @@ class UserViewset(ModelViewSet):
         try:
             email = data['email']
 
-            if UserProfile.objects.filter(email__iexact=email):
+            if (
+                UserProfile.objects.filter(email__iexact=email) or
+                Barbers.objects.filter(email_barber__iexact=email)
+            ):
                 return Response({'message': 'Um usuário com este email já existe.'}, status=status.HTTP_409_CONFLICT)
 
             first_name = data['full_name'].split(' ', 1)[0]
@@ -90,16 +93,17 @@ class UserViewset(ModelViewSet):
 
     @action(detail=False, methods=['DELETE'], permission_classes=[IsAuthenticated])
     def delete_user(self, request):
+        user_id = request.user.id
         try:
-            user = UserProfile.objects.get(id=request.user.id)
+            user = UserProfile.objects.get(id=user_id)
             user.delete()
             return Response({'message': 'Sucesso Apagado!'},
                             status=status.HTTP_200_OK)
-
         except UserProfile.DoesNotExist:
             return Response({'message': 'Usuario Nao Existente.'},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as error:
+            print(error)
             return Response({'message': 'Nao Foi Possivel Deletar usuario, Entre em Contato com o Suporte.'},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
