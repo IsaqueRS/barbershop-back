@@ -36,16 +36,12 @@ class UserViewset(ModelViewSet):
                 username=first_name,
                 full_name=data['full_name'],
                 email=data['email'],
-                token_google=data['token_google']
             )
 
             user.set_password(data['password'])
             user.save()
-            token = Token.objects.create(user=user)
-            # token = Token.objects.create(user=users)
-            # UserViewSet.send_email_confirm_user(user, request)
+            Token.objects.create(user=user)
             return Response({'message': 'Usuário Cadastrado.'}, status=status.HTTP_200_OK)
-            # return Response({'msg': 'Usuário Cadastrado.', 'token': user.auth_token.key, 'user': serializer.data}, status=status.HTTP_200_OK)
         except Exception as error:
             print(error)
             # sentry_sdk.capture_exception(error)
