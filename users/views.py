@@ -36,6 +36,10 @@ class UserViewset(ModelViewSet):
                 username=first_name,
                 full_name=data['full_name'],
                 email=data['email'],
+                owner=data['owner'],
+                owner_company=data['owner_company'],
+                image=data.get('image', None),
+                description=data['description']
             )
 
             user.set_password(data['password'])
