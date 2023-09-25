@@ -8,6 +8,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.response import Response
 from django.contrib.auth import authenticate
 
+from barber_shop.models import Company
 from users.models import UserProfile, Barbers
 from users.serializers import UserSerializer, BarbersSerializer
 
@@ -31,13 +32,15 @@ class UserViewset(ModelViewSet):
                 return Response({'message': 'Um usuário com este email já existe.'}, status=status.HTTP_409_CONFLICT)
 
             first_name = data['full_name'].split(' ', 1)[0]
+            company_id = data['owner_company']
+            company = Company.objects.get(id=company_id)
 
             user = UserProfile.objects.create(
                 username=first_name,
                 full_name=data['full_name'],
                 email=data['email'],
                 owner=data['owner'],
-                owner_company=data['owner_company'],
+                owner_company=company,
                 image=data.get('image', None),
                 description=data['description']
             )
