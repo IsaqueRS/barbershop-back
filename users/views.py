@@ -33,8 +33,15 @@ class UserViewset(ModelViewSet):
 
             first_name = data['full_name'].split(' ', 1)[0]
 
-            company_id = data['owner_company']
-            company = Company.objects.get(id=company_id)
+            company_id = data.get('owner_company')
+            if company_id:
+                try:
+                    company = Company.objects.get(id=company_id)
+                except Company.DoesNotExist:
+                    return Response({'message': 'Companhia não encontrada.'}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                company = None
+
             user = UserProfile.objects.create(
                 username=first_name,
                 full_name=data['full_name'],
