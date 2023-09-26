@@ -32,9 +32,9 @@ class UserViewset(ModelViewSet):
                 return Response({'message': 'Um usuário com este email já existe.'}, status=status.HTTP_409_CONFLICT)
 
             first_name = data['full_name'].split(' ', 1)[0]
+
             company_id = data['owner_company']
             company = Company.objects.get(id=company_id)
-
             user = UserProfile.objects.create(
                 username=first_name,
                 full_name=data['full_name'],
@@ -48,6 +48,7 @@ class UserViewset(ModelViewSet):
             user.set_password(data['password'])
             user.save()
             Token.objects.create(user=user)
+
             return Response({'message': 'Usuário Cadastrado.'}, status=status.HTTP_200_OK)
         except Exception as error:
             print(error)
