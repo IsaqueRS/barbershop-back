@@ -473,7 +473,7 @@ class SchedulesViewset(ModelViewSet):
 
             if data['user_canceled'] == False:
                 return Response({'message': 'Você não pode fazer está ação, tente remarcar um novo um agendamento!'},
-                                status=status.HTTP_400_BAD_REQUEST)
+                                status=status.HTTP_403_FORBIDDEN)
 
             format_date = datetime.strftime(schedule.date, "%d/%m/%Y às %H:%M")
             message = f"O cliente {schedule.client} cancelou o agendamento do dia {format_date}"
