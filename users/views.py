@@ -110,9 +110,6 @@ class UserViewset(ModelViewSet):
             user.delete()
             return Response({'message': 'Sucesso Apagado!'},
                             status=status.HTTP_200_OK)
-        except UserProfile.DoesNotExist:
-            return Response({'message': 'Usuario Nao Existente.'},
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as error:
             print(error)
             return Response({'message': 'Nao Foi Possivel Deletar usuario, Entre em Contato com o Suporte.'},
@@ -163,7 +160,7 @@ class UserViewset(ModelViewSet):
     @action(detail=False, methods=['GET'], permission_classes=[AllowAny])
     def list_users(self, request):
         try:
-            users = UserProfile.objects.all()
+            users = UserProfile.objects.all().order_by('username')
             serializer = UserSerializer(users, many=True)
             return Response({'message': 'Usuários encontrados', 'users': serializer.data}, status=status.HTTP_200_OK)
         except Exception as error:
@@ -187,7 +184,7 @@ class UserViewset(ModelViewSet):
     def search_users(self, request):
         params = request.query_params
         try:
-            users = UserProfile.objects.filter(username__icontains=params['name'])
+            users = UserProfile.objects.filter(username__icontains=params['name']).order_by('username')
             serializer = UserSerializer(users, many=True)
             return Response({'message': 'Usuário encontrado', 'user': serializer.data}, status=status.HTTP_200_OK)
         except Exception as error:
