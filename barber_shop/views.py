@@ -460,17 +460,22 @@ class SchedulesViewset(ModelViewSet):
         user = request.user
         try:
             schedule = Schedules.objects.get(pk=data['schedule_id'])
+
+            if schedule.user_canceled == True:
+                return Response({'message': 'Este agendamento já foi cancelado!'},
+                                status=status.HTTP_400_BAD_REQUEST)
+
             schedule.user_canceled = data['user_canceled']
 
             if user != schedule.client:
-                return Response({'message': 'Apenas o próprio usuário pode cancelar este agendamento'},
+                return Response({'message': 'Apenas o próprio usuário pode cancelar este agendamento!'},
                                 status=status.HTTP_401_UNAUTHORIZED)
 
             if data['user_canceled'] == False:
-                return Response({'message': 'Voce não pode fazer está ação, tente remarcar um novo um agendamento'},
+                return Response({'message': 'Você não pode fazer está ação, tente remarcar um novo um agendamento!'},
                                 status=status.HTTP_400_BAD_REQUEST)
 
-            format_date = datetime.strftime(schedule.date, "%d/m/%Y àS %H:%M")
+            format_date = datetime.strftime(schedule.date, "%d/%m/%Y às %H:%M")
             message = f"O cliente {schedule.client} cancelou o agendamento do dia {format_date}"
             subject = 'BarberShop - Cancelamento de corte'
             send_email(schedule.chosen_barber, subject, message)
