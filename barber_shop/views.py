@@ -470,6 +470,11 @@ class SchedulesViewset(ModelViewSet):
                 return Response({'message': 'Voce não pode fazer está ação, tente remarcar um novo um agendamento'},
                                 status=status.HTTP_400_BAD_REQUEST)
 
+            format_date = datetime.strftime(schedule.date, "%d/m/%Y àS %H:%M")
+            message = f"O cliente {schedule.client} cancelou o agendamento do dia {format_date}"
+            subject = 'BarberShop - Cancelamento de corte'
+            send_email(schedule.chosen_barber, subject, message)
+
             schedule.save()
             return Response({'message': 'Cancelamento feito com sucesso'}, status=status.HTTP_200_OK)
         except Exception as error:
