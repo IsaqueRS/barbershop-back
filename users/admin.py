@@ -21,7 +21,6 @@ class FormUser(forms.ModelForm):
             self.fields['owner_company'].disabled = True
 
 
-
 class UserProfileAdmin(UserAdmin):
     ordering = ['id']
     fieldsets = ('Informações do Usuário', {'fields': ('username', 'type', 'owner', 'owner_company', 'password', 'full_name', 'email',
