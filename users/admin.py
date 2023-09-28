@@ -15,6 +15,11 @@ class FormUser(forms.ModelForm):
         else:
             self.fields['type'].disabled = True
 
+        if request.user.type == 'cliente':
+            self.fields['type'].disabled = True
+            self.fields['owner'].disabled = True
+            self.fields['owner_company'].disabled = True
+
 
 class UserProfileAdmin(UserAdmin):
     ordering = ['id']
