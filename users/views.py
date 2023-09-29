@@ -195,6 +195,16 @@ class UserViewset(ModelViewSet):
             print(error)
             return Response({'message': 'Erro ao buscar por usuário'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+    @action(detail=False, methods=['GET'], permission_classes=[IsAuthenticated])
+    def list_owners(self, request):
+        try:
+            owners = UserProfile.objects.filter(owner=True, type='dono')
+            serializer = UserSerializer(owners, many=True)
+            return Response({'message': 'Dono(s) encontrado(s)', 'owners': serializer.data}, status=status.HTTP_200_OK)
+        except Exception as error:
+            print(error)
+            return Response({'message': 'Erro ao listar dono(s)'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 class BarberViewSet(ModelViewSet):
     queryset = Barbers.objects.all()
