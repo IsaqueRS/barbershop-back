@@ -125,6 +125,10 @@ class UserViewset(ModelViewSet):
             names = user.full_name.split(' ', 1)[0]
             user.first_name = names[0]
             user.last_name = names[1] if len(names) > 1 else ' '
+            user.owner = data['owner']
+            user.owner_company = data['owner_company']
+            user.image = data.get('image', None)
+            user.email = data['email']
             user.save()
             return Response({'message': 'Dados alterados com sucesso!'}, status=status.HTTP_200_OK)
         except Exception as error:
