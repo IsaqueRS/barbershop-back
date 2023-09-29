@@ -2,9 +2,10 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from .models import UserProfile, Barbers
 from django import forms
+from django.contrib.auth.forms import UserChangeForm
 
 
-class FormUser(forms.ModelForm):
+class FormUser(UserChangeForm):
     def __init__(self, *args, **kwargs):
         super(FormUser, self).__init__(*args, **kwargs)
 
