@@ -17,7 +17,7 @@ class UserProfile(AbstractUser):
     type = models.CharField('Tipo do usuário', choices=TYPE_USER, max_length=50, default='cliente')
     owner_company = models.ForeignKey(Company, related_name="company_owner", verbose_name="Gerente de",
                                       on_delete=models.SET_NULL, blank=True, null=True)
-    owner = models.BooleanField('Dono de alguma barbearia?', default=False)
+    is_owner = models.BooleanField('Dono de alguma barbearia?', default=False)
     full_name = models.CharField("Nome Completo", max_length=512, blank=True, null=True)
     email = models.EmailField('E-mail', unique=True)
     image = models.ImageField('Foto de perfil', blank=True, null=True)
