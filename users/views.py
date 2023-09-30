@@ -46,7 +46,7 @@ class UserViewset(ModelViewSet):
                 username=first_name,
                 full_name=data['full_name'],
                 email=data['email'],
-                owner=data['owner'],
+                is_owner=data['is_owner'],
                 owner_company=company,
                 image=data.get('image', None),
                 description=data['description']
@@ -125,7 +125,7 @@ class UserViewset(ModelViewSet):
             names = user.full_name.split(' ', 1)[0]
             user.first_name = names[0]
             user.last_name = names[1] if len(names) > 1 else ' '
-            user.owner = data['owner']
+            user.is_owner = data['is_owner']
             user.owner_company = data['owner_company']
             user.image = data.get('image', None)
             user.email = data['email']
@@ -196,9 +196,9 @@ class UserViewset(ModelViewSet):
             return Response({'message': 'Erro ao buscar por usuário'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=False, methods=['GET'], permission_classes=[IsAuthenticated])
-    def list_owners(self, request):
+    def list_all_owners(self, request):
         try:
-            owners = UserProfile.objects.filter(owner=True, type='dono')
+            owners = UserProfile.objects.filter(is_owner=True, type='dono')
             serializer = UserSerializer(owners, many=True)
             return Response({'message': 'Dono(s) encontrado(s)', 'owners': serializer.data}, status=status.HTTP_200_OK)
         except Exception as error:
