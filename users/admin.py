@@ -24,8 +24,8 @@ class FormUser(UserChangeForm):
 
 class UserProfileAdmin(UserAdmin):
     ordering = ['id']
-    fieldsets = ('Informações do Usuário', {'fields': ('username', 'type', 'is_owner', 'owner_company', 'password', 'full_name', 'email',
-                                                       'description', 'image')}),
+    fieldsets = ('Informações do Usuário', {'fields': ('username', 'type', 'is_owner', 'owner_company', 'password',
+                                                       'full_name', 'email', 'description', 'image')}),
     form = FormUser
     search_fields = ['email', 'full_name', 'username']
     list_display = ['id', 'email', 'full_name', 'username']
