@@ -18,13 +18,13 @@ class FormUser(UserChangeForm):
 
         if request.user.type == 'cliente':
             self.fields['type'].disabled = True
-            self.fields['owner'].disabled = True
+            self.fields['is_owner'].disabled = True
             self.fields['owner_company'].disabled = True
 
 
 class UserProfileAdmin(UserAdmin):
     ordering = ['id']
-    fieldsets = ('Informações do Usuário', {'fields': ('username', 'type', 'owner', 'owner_company', 'password', 'full_name', 'email',
+    fieldsets = ('Informações do Usuário', {'fields': ('username', 'type', 'is_owner', 'owner_company', 'password', 'full_name', 'email',
                                                        'description', 'image')}),
     form = FormUser
     search_fields = ['email', 'full_name', 'username']
