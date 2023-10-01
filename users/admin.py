@@ -1,8 +1,14 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from .models import UserProfile, Barbers
+from prices.models import Prices
 from django import forms
 from django.contrib.auth.forms import UserChangeForm
+
+
+class PricesInline(admin.StackedInline):
+    model = Prices
+    fields = ['barber', 'cut_price', 'cut_description']
 
 
 class FormUser(UserChangeForm):
@@ -46,6 +52,9 @@ class BarbersAdmin(admin.ModelAdmin):
     list_display_links = ['company', 'barber']
     search_fields = ['barber__username']
     form = FormBarber
+    inlines = [
+        PricesInline
+    ]
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == 'barber':
