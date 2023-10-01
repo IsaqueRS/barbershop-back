@@ -46,7 +46,7 @@ class UserViewset(ModelViewSet):
                 username=first_name,
                 full_name=data['full_name'],
                 email=data['email'],
-                owner=data['owner'],
+                is_owner=data['is_owner'],
                 owner_company=company,
                 image=data.get('image', None),
                 description=data['description']
@@ -125,7 +125,7 @@ class UserViewset(ModelViewSet):
             names = user.full_name.split(' ', 1)[0]
             user.first_name = names[0]
             user.last_name = names[1] if len(names) > 1 else ' '
-            user.owner = data['owner']
+            user.is_owner = data['is_owner']
             user.owner_company = data['owner_company']
             user.image = data.get('image', None)
             user.email = data['email']
@@ -196,9 +196,9 @@ class UserViewset(ModelViewSet):
             return Response({'message': 'Erro ao buscar por usuário'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=False, methods=['GET'], permission_classes=[IsAuthenticated])
-    def list_owners(self, request):
+    def list_all_owners(self, request):
         try:
-            owners = UserProfile.objects.filter(owner=True, type='dono')
+            owners = UserProfile.objects.filter(is_owner=True, type='dono')
             serializer = UserSerializer(owners, many=True)
             return Response({'message': 'Dono(s) encontrado(s)', 'owners': serializer.data}, status=status.HTTP_200_OK)
         except Exception as error:
@@ -231,6 +231,10 @@ class BarberViewSet(ModelViewSet):
 
             if user.type == 'dono':
                 random_password = generate_random_password()
+
+                if Barbers.objects.filter(password__iexact=random_password):
+                    return Response({'message': 'Senha já existente.'}, status=status.HTTP_409_CONFLICT)
+
                 Barbers.objects.create(
                     company_id=user.owner_company.id,
                     barber_id=barber_id,
@@ -238,11 +242,12 @@ class BarberViewSet(ModelViewSet):
                     password=random_password,
                     email_barber=data['email_barber']
                 )
+                subject = 'BarberShop - Notificação de novo barbeiro registrado'
                 message = (
                             f'O usuário {user.username} cadastrou você na barbearia {user.owner_company}. '
                             f'Sua senha de acesso é {random_password}'
                 )
-                send_email(data['email_barber'], 'Barbershop', message)
+                send_email(data['email_barber'], subject, message)
 
                 return Response({'message': 'Barbeiro registrado com sucesso'}, status=status.HTTP_200_OK)
             else:
