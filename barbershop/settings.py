@@ -56,7 +56,8 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'users',
     'barber_shop',
-    'about_us'
+    'about_us',
+    'prices'
 ]
 
 MIDDLEWARE = [
