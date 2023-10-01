@@ -13,6 +13,23 @@ class PricesViewSet(ModelViewSet):
     serializer_class = PricesSerializers
     permission_classes = [IsAuthenticated]
 
+    @action(detail=False, methods=['POST'], permission_classes=[IsAuthenticated])
+    def register_price(self, request):
+        user = request.user
+        data = request.data
+        try:
+            if user.type == 'dono':
+                Prices.objects.create(
+                    barber_id=data['barber_id'],
+                    cut_price=data['cut_price'],
+                    cut_description=data['cut_description']
+                )
+                return Response({'message': 'Novo preço registrado'}, status=status.HTTP_200_OK)
+            else:
+                return Response({'message': 'Somente o dono da barbearia pode registrar um novo preço!'}, status=status.HTTP_401_UNAUTHORIZED)
+        except Exception as error:
+            print(error)
+            return Response({'message': 'Erro ao registrar novo preço!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=False, methods=['GET'], permission_classes=[IsAuthenticated])
     def list_prices_by_barber(self, request):
