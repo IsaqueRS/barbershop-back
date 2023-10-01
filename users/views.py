@@ -231,6 +231,10 @@ class BarberViewSet(ModelViewSet):
 
             if user.type == 'dono':
                 random_password = generate_random_password()
+
+                if Barbers.objects.filter(password__iexact=random_password):
+                    return Response({'message': 'Senha já existente.'}, status=status.HTTP_409_CONFLICT)
+
                 Barbers.objects.create(
                     company_id=user.owner_company.id,
                     barber_id=barber_id,
@@ -238,11 +242,12 @@ class BarberViewSet(ModelViewSet):
                     password=random_password,
                     email_barber=data['email_barber']
                 )
+                subject = 'BarberShop - Notificação de novo barbeiro registrado'
                 message = (
                             f'O usuário {user.username} cadastrou você na barbearia {user.owner_company}. '
                             f'Sua senha de acesso é {random_password}'
                 )
-                send_email(data['email_barber'], 'Barbershop', message)
+                send_email(data['email_barber'], subject, message)
 
                 return Response({'message': 'Barbeiro registrado com sucesso'}, status=status.HTTP_200_OK)
             else:
