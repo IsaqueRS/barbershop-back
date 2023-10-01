@@ -32,14 +32,20 @@ class UserProfileAdmin(UserAdmin):
     list_display_links = ['id', 'email']
 
 
+class FormBarber(UserChangeForm):
+    def __init__(self, *args, **kwargs):
+        super(FormBarber, self).__init__(*args, **kwargs)
+
+
 class BarbersAdmin(admin.ModelAdmin):
     fieldsets = (
-        ('Informações do barbeiro', {'fields': ('company', 'barber', 'email_barber', 'profile_photo')}),
+        ('Informações do barbeiro', {'fields': ('company', 'barber', 'password', 'email_barber', 'profile_photo')}),
     )
     list_display = ['id', 'company', 'barber', 'email_barber']
     list_filter = ['company']
     list_display_links = ['company', 'barber']
     search_fields = ['barber__username']
+    form = FormBarber
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == 'barber':
