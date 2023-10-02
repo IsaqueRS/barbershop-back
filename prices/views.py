@@ -22,7 +22,8 @@ class PricesViewSet(ModelViewSet):
                 Prices.objects.create(
                     barber_id=data['barber_id'],
                     cut_price=data['cut_price'],
-                    cut_description=data['cut_description']
+                    cut_description=data['cut_description'],
+                    cut_photo=data.get('cut_photo', '')
                 )
                 return Response({'message': 'Novo preço registrado'}, status=status.HTTP_200_OK)
             else:
@@ -39,17 +40,19 @@ class PricesViewSet(ModelViewSet):
             if user.type == 'dono':
                 price = Prices.objects.get(id=data['price_id'])
                 if user in price.barber.company.owner.all():
-                    price.barber = data['barber_id']
-                    price.cut_price = data['cut_price']
-                    price.cut_description = data['cut_description']
-                    price.cut_photo = data.get('cut_photo', '')
-                    price.save()
+                    Prices.objects.filter(id=data['price_id']).update(
+                        barber=data['barber_id'],
+                        cut_price=data['cut_price'],
+                        cut_description=data['cut_description'],
+                        cut_photo=data.get('cut_photo', '')
+                    )
                     return Response({'message': 'Preço atualizado'}, status=status.HTTP_200_OK)
                 elif user == price.barber.barber:
-                    price.cut_price = data['cut_price']
-                    price.cut_description = data['cut_description']
-                    price.cut_photo = data.get('cut_photo', '')
-                    price.save()
+                    Prices.objects.filter(id=data['price_id']).update(
+                        cut_price=data['cut_price'],
+                        cut_description=data['cut_description'],
+                        cut_photo=data.get('cut_photo', '')
+                    )
                     return Response({'message': 'Preço atualizado'}, status=status.HTTP_200_OK)
                 else:
                     return Response({
@@ -71,7 +74,7 @@ class PricesViewSet(ModelViewSet):
             return Response({'message': 'Preços encontrados', 'prices': serializer.data}, status=status.HTTP_200_OK)
         except Exception as error:
             print(error)
-            return Response({'message': 'Erro ao listar os preços de corte do barbeiro'},
+            return Response({'message': 'Erro ao listar os preços de corte do barbeiro!'},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=False, methods=['GET'], permission_classes=[IsAuthenticated])
@@ -82,4 +85,4 @@ class PricesViewSet(ModelViewSet):
             return Response({'message': 'Preços encontrados', 'prices': serializer.data}, status=status.HTTP_200_OK)
         except Exception as error:
             print(error)
-            return Response({'message': 'Erro ao listar os preços de corte'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({'message': 'Erro ao listar os preços dos cortes!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
