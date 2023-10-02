@@ -31,6 +31,37 @@ class PricesViewSet(ModelViewSet):
             print(error)
             return Response({'message': 'Erro ao registrar novo preço!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+    @action(detail=False, methods=['PATCH'], permission_classes=[IsAuthenticated])
+    def update_price(self, request):
+        user = request.user
+        data = request.data
+        try:
+            if user.type == 'dono':
+                price = Prices.objects.get(id=data['price_id'])
+                if user in price.barber.company.owner.all():
+                    price.barber = data['barber_id']
+                    price.cut_price = data['cut_price']
+                    price.cut_description = data['cut_description']
+                    price.cut_photo = data.get('cut_photo', '')
+                    price.save()
+                    return Response({'message': 'Preço atualizado'}, status=status.HTTP_200_OK)
+                elif user == price.barber.barber:
+                    price.cut_price = data['cut_price']
+                    price.cut_description = data['cut_description']
+                    price.cut_photo = data.get('cut_photo', '')
+                    price.save()
+                    return Response({'message': 'Preço atualizado'}, status=status.HTTP_200_OK)
+                else:
+                    return Response({
+                        'message': 'Somente o dono da barbearia ou os próprios barbeiros podem atualizar os preços!'
+                    }, status=status.HTTP_401_UNAUTHORIZED)
+            else:
+                return Response({'message': 'Somente usuários do tipo dono podem atualizar os preços!'},
+                                status=status.HTTP_401_UNAUTHORIZED)
+        except Exception as error:
+            print(error)
+            return Response({'message': 'Erro ao registrar novo preço!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
     @action(detail=False, methods=['GET'], permission_classes=[IsAuthenticated])
     def list_prices_by_barber(self, request):
         params = request.query_params
