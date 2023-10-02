@@ -42,11 +42,13 @@ class PricesViewSet(ModelViewSet):
                     price.barber = data['barber_id']
                     price.cut_price = data['cut_price']
                     price.cut_description = data['cut_description']
+                    price.cut_photo = data.get('cut_photo', '')
                     price.save()
                     return Response({'message': 'Preço atualizado'}, status=status.HTTP_200_OK)
                 elif user == price.barber.barber:
                     price.cut_price = data['cut_price']
                     price.cut_description = data['cut_description']
+                    price.cut_photo = data.get('cut_photo', '')
                     price.save()
                     return Response({'message': 'Preço atualizado'}, status=status.HTTP_200_OK)
                 else:
