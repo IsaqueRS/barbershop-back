@@ -65,6 +65,28 @@ class PricesViewSet(ModelViewSet):
             print(error)
             return Response({'message': 'Erro ao registrar novo preço!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+    @action(detail=False, methods=['DELETE'], permission_classes=[IsAuthenticated])
+    def exclude_price(self, request):
+        data = request.data
+        user = request.user
+        try:
+            price = Prices.objects.get(id=data['price_id'])
+            if user.type == 'dono':
+                if user in price.barber.company.owner.all():
+                    price.delete()
+                    return Response({'message': 'Preço excluido com sucesso'})
+                else:
+                    return Response({'message': 'Apenas o(s) dono(s) da barbearia pode(m) excluir os preços dos cortes!'},
+                                    status=status.HTTP_401_UNAUTHORIZED)
+            else:
+                return Response({'message': 'Apenas usuários do tipo dono podem realizar esta ação!'},
+                                status=status.HTTP_401_UNAUTHORIZED)
+        except ObjectDoesNotExist:
+            return Response({'message': 'Preço não encontrado!'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as error:
+            print(error)
+            return Response({'message': 'Erro ao excluir preço!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
     @action(detail=False, methods=['GET'], permission_classes=[IsAuthenticated])
     def price_by_id(self, request):
         params = request.query_params
@@ -82,7 +104,7 @@ class PricesViewSet(ModelViewSet):
     def list_prices_by_barber(self, request):
         params = request.query_params
         try:
-            prices = Prices.objects.filter(barber_id=params['barber_id']).order_by('cut_price')
+            prices = Prices.objects.filter(barber__barber_id=params['barber_id']).order_by('cut_price')
             serializer = PricesSerializers(prices, many=True)
             return Response({'message': 'Preços encontrados', 'prices': serializer.data}, status=status.HTTP_200_OK)
         except Exception as error:
