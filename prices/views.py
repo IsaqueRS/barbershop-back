@@ -113,6 +113,21 @@ class PricesViewSet(ModelViewSet):
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=False, methods=['GET'], permission_classes=[IsAuthenticated])
+    def list_prices_by_user(self, request):
+        user = request.user
+        try:
+            if user.type == 'barbeiro':
+                prices = Prices.objects.filter(barber__barber_id=user.id).order_by('cut_price')
+                serializer = PricesSerializers(prices, many=True)
+                return Response({'message': 'Preços encontrados', 'prices': serializer.data}, status=status.HTTP_200_OK)
+            else:
+                return Response({'message': 'Nenhum preço encontrado!'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as error:
+            print(error)
+            return Response({'message': 'Erro ao listar os preços de corte do barbeiro!'},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['GET'], permission_classes=[IsAuthenticated])
     def list_all_prices(self, request):
         try:
             prices = Prices.objects.all().order_by('cut_price')
