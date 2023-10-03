@@ -82,7 +82,7 @@ class PricesViewSet(ModelViewSet):
     def list_prices_by_barber(self, request):
         params = request.query_params
         try:
-            prices = Prices.objects.filter(barber__barber_id=params['barber_id']).order_by('cut_price')
+            prices = Prices.objects.filter(barber_id=params['barber_id']).order_by('cut_price')
             serializer = PricesSerializers(prices, many=True)
             return Response({'message': 'Preços encontrados', 'prices': serializer.data}, status=status.HTTP_200_OK)
         except Exception as error:
