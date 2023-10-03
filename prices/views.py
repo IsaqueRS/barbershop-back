@@ -67,8 +67,8 @@ class PricesViewSet(ModelViewSet):
 
     @action(detail=False, methods=['DELETE'], permission_classes=[IsAuthenticated])
     def exclude_price(self, request):
-        user = request.user
         data = request.data
+        user = request.user
         try:
             price = Prices.objects.get(id=data['price_id'])
             if user.type == 'dono':
