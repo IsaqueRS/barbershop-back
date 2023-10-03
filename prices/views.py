@@ -74,7 +74,7 @@ class PricesViewSet(ModelViewSet):
             if user.type == 'dono':
                 if user in price.barber.company.owner.all():
                     price.delete()
-                    return Response({'message': 'Preço excluido com sucesso'})
+                    return Response({'message': 'Preço excluido com sucesso'}, status=status.HTTP_200_OK)
                 else:
                     return Response({'message': 'Apenas o(s) dono(s) da barbearia pode(m) excluir os preços dos cortes!'},
                                     status=status.HTTP_401_UNAUTHORIZED)
