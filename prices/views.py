@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework import status
@@ -64,6 +64,19 @@ class PricesViewSet(ModelViewSet):
         except Exception as error:
             print(error)
             return Response({'message': 'Erro ao registrar novo preço!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['GET'], permission_classes=[IsAuthenticated])
+    def price_by_id(self, request):
+        params = request.query_params
+        try:
+            price = Prices.objects.get(id=params['price_id'])
+            serializer = PricesSerializers(price)
+            return Response({'message': 'Preço encontrado com sucesso', 'price': serializer.data}, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
+            return Response({'message': 'Preço não encontrado!'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as error:
+            print(error)
+            return Response({'message': 'Erro ao buscar preço!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=False, methods=['GET'], permission_classes=[IsAuthenticated])
     def list_prices_by_barber(self, request):
