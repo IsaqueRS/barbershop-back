@@ -138,7 +138,7 @@ class PricesViewSet(ModelViewSet):
             return Response({'message': 'Erro ao listar os preços dos cortes!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=False, methods=['GET'], permission_classes=[IsAuthenticated])
-    def filter_prices(self, request):
+    def order_by_prices(self, request):
         sort_by = request.query_params.get('sort_by')
         try:
             prices = Prices.objects.filter()
