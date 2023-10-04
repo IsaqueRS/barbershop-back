@@ -7,6 +7,8 @@ from .serializers import PricesSerializers
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import action
 
+from users.utils import get_unique_or_none
+from users.models import UserProfile
 
 class PricesViewSet(ModelViewSet):
     queryset = Prices.objects.all()
@@ -31,6 +33,7 @@ class PricesViewSet(ModelViewSet):
         except Exception as error:
             print(error)
             return Response({'message': 'Erro ao registrar novo preço!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
     @action(detail=False, methods=['PATCH'], permission_classes=[IsAuthenticated])
     def update_price(self, request):
