@@ -136,3 +136,21 @@ class PricesViewSet(ModelViewSet):
         except Exception as error:
             print(error)
             return Response({'message': 'Erro ao listar os preços dos cortes!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['GET'], permission_classes=[IsAuthenticated])
+    def order_by_prices(self, request):
+        sort_by = request.query_params.get('sort_by')
+        try:
+            prices = Prices.objects.filter()
+            if sort_by == 'price_asc':
+                price = prices.order_by('cut_price')
+            elif sort_by == 'price_desc':
+                price = prices.order_by('-cut_price')
+            elif sort_by == '' or ' ' or None:
+                price = prices.order_by('id')
+
+            serializer = PricesSerializers(price, many=True)
+            return Response({'message': 'Preços encontrados', 'prices': serializer.data}, status=status.HTTP_200_OK)
+        except Exception as error:
+            print(error)
+            return Response({'message': 'Erro ao listar preços!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
