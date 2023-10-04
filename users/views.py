@@ -13,11 +13,66 @@ from users.models import UserProfile, Barbers
 from users.serializers import UserSerializer, BarbersSerializer
 
 from utils import generate_random_password, send_email
+from .utils import get_unique_or_none
 
 
 class UserViewset(ModelViewSet):
     queryset = UserProfile.objects.all()
     serializer_class = UserSerializer
+
+    @action(detail=False, methods=['POST'], permission_classes=[IsAuthenticated])
+    def redefine_password(self, request):
+        user = request.user
+        password = request.data['password']
+        new_password = request.data['new_password']
+
+        try:
+            user_exist = get_unique_or_none(UserProfile, pk=user.id)
+            password_old = user.check_password(password)
+            if password_old:
+                user_exist.set_password(new_password)
+                user_exist.save()
+                return Response({'message': 'Senha alterada com sucesso.'}, status=status.HTTP_200_OK)
+            else:
+                return Response({'message': 'Senha atual está incorreta!'}, status=status.HTTP_401_UNAUTHORIZED)
+        except UserProfile.DoesNotExist:
+            return Response({'message': 'Usuario nao existe.'}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as error:
+            print(error)
+            return Response({'message': 'Ocorreu um Erro, Por Favor Tente Novamente mais Tarde.'},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(methods=['POST'], detail=False, permission_classes=[AllowAny])
+    def forgot_password(self, request):
+        data = request.data
+        try:
+            email = data['email']
+
+            user = UserProfile.objects.filter(email__iexact=email)
+            if user:
+                new_password = UserProfile.objects.make_random_password(length=8,
+                                                                        allowed_chars='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789')
+
+                body = f'Esta é sua senha temporária: {new_password} - Equipe Rei do Gás'
+
+                mail = send_email(email, body, 'Esqueceu a Senha - Rei do Gás')
+
+                if mail['status'] == 503:
+                    print(mail['msg'])
+                    return Response({"message": "Erro ao enviar senha temporária"},
+                                    status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+                user[0].set_password(new_password)
+                user[0].save()
+
+                return Response({"message": "Email com uma nova senha enviado com sucesso"}, status=status.HTTP_200_OK)
+
+            return Response({'message': 'Usuário não foi encontrado no sistema.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            print(e)
+            return Response({'message': 'Ocorreu um erro, Por favor tente novamente mais tarde.'},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(methods=['POST'], detail=False, permission_classes=[AllowAny])
     def register_user(self, request):
