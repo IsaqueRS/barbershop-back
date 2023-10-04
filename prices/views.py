@@ -7,6 +7,8 @@ from .serializers import PricesSerializers
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import action
 
+from users.utils import get_unique_or_none
+from users.models import UserProfile
 
 class PricesViewSet(ModelViewSet):
     queryset = Prices.objects.all()
@@ -31,6 +33,28 @@ class PricesViewSet(ModelViewSet):
         except Exception as error:
             print(error)
             return Response({'message': 'Erro ao registrar novo preço!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['POST'], permission_classes=[IsAuthenticated])
+    def redefine_password(self, request):
+        user = request.user
+        password = request.data['password']
+        new_password = request.data['new_password']
+
+        try:
+            user_exist = get_unique_or_none(UserProfile, pk=user.id)
+            password_old = user.check_password(password)
+            if password_old:
+                user_exist.set_password(new_password)
+                user_exist.save()
+                return Response({'message': 'Senha alterada com sucesso.'}, status=status.HTTP_200_OK)
+            else:
+                return Response({'message': 'Senha atual está incorreta!'}, status=status.HTTP_401_UNAUTHORIZED)
+        except UserProfile.DoesNotExist:
+            return Response({'message': 'Usuario nao existe.'}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as error:
+            print(error)
+            return Response({'message': 'Ocorreu um Erro, Por Favor Tente Novamente mais Tarde.'},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=False, methods=['PATCH'], permission_classes=[IsAuthenticated])
     def update_price(self, request):
