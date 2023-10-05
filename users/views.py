@@ -53,9 +53,9 @@ class UserViewset(ModelViewSet):
                 new_password = UserProfile.objects.make_random_password(length=8,
                                                                         allowed_chars='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789')
 
-                body = f'Esta é sua senha temporária: {new_password} - Equipe Rei do Gás'
+                body = f'Esta é sua senha temporária: {new_password} - Equipe BarberSho'
 
-                mail = send_email(email, body, 'Esqueceu a Senha - Rei do Gás')
+                mail = send_email(email, body, 'Esqueceu a Senha - BarberShop')
 
                 if mail['status'] == 503:
                     print(mail['msg'])
@@ -333,6 +333,36 @@ class BarberViewSet(ModelViewSet):
         except Exception as error:
             print(error)
             return Response({'message': 'Ocorreu um Erro, Por Favor Tente Novamente mais Tarde.'},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(methods=['POST'], detail=False, permission_classes=[AllowAny])
+    def forgot_password(self, request):
+        data = request.data
+        try:
+            email = data['email']
+
+            barber = Barbers.objects.filter(email_barber__iexact=email)
+            if barber:
+                new_password = generate_random_password()
+                body = f'Esta é sua senha temporária: {new_password} - Equipe BarberShop'
+
+                mail = send_email(email, body, 'Esqueceu a Senha - BarberShop')
+
+                if mail['status'] == 503:
+                    print(mail['msg'])
+                    return Response({"message": "Erro ao enviar senha temporária"},
+                                    status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+                barber.password(new_password)
+                barber.save()
+
+                return Response({"message": "Email com uma nova senha enviado com sucesso"}, status=status.HTTP_200_OK)
+
+            return Response({'message': 'Usuário não foi encontrado no sistema.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            print(e)
+            return Response({'message': 'Ocorreu um erro, Por favor tente novamente mais tarde.'},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=False, methods=['POST'], permission_classes=[IsAuthenticated])
