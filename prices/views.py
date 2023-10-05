@@ -34,7 +34,6 @@ class PricesViewSet(ModelViewSet):
             print(error)
             return Response({'message': 'Erro ao registrar novo preço!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-
     @action(detail=False, methods=['PATCH'], permission_classes=[IsAuthenticated])
     def update_price(self, request):
         user = request.user
