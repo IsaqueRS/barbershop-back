@@ -328,7 +328,7 @@ class BarberViewSet(ModelViewSet):
                 return Response({'message': 'Senha alterada com sucesso.'}, status=status.HTTP_200_OK)
             else:
                 return Response({'message': 'Senha atual está incorreta!'}, status=status.HTTP_401_UNAUTHORIZED)
-        except UserProfile.DoesNotExist:
+        except ObjectDoesNotExist:
             return Response({'message': 'Barbeiro não existe.'}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as error:
             print(error)
