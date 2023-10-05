@@ -320,16 +320,16 @@ class BarberViewSet(ModelViewSet):
         new_password = request.data['new_password']
 
         try:
-            user_exist = get_unique_or_none(UserProfile, pk=user.id)
-            password_old = user.check_password(password)
+            barber_exist = get_unique_or_none(Barbers, barber_id=user.id)
+            password_old = Barbers.objects.get(password=password)
             if password_old:
-                user_exist.set_password(new_password)
-                user_exist.save()
+                barber_exist.password(new_password)
+                barber_exist.save()
                 return Response({'message': 'Senha alterada com sucesso.'}, status=status.HTTP_200_OK)
             else:
                 return Response({'message': 'Senha atual está incorreta!'}, status=status.HTTP_401_UNAUTHORIZED)
         except UserProfile.DoesNotExist:
-            return Response({'message': 'Usuario nao existe.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': 'Barbeiro não existe.'}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as error:
             print(error)
             return Response({'message': 'Ocorreu um Erro, Por Favor Tente Novamente mais Tarde.'},
