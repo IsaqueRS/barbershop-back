@@ -8,7 +8,7 @@ from django.contrib.auth.forms import UserChangeForm
 
 class PricesInline(admin.StackedInline):
     model = Prices
-    fields = ['barber', 'cut_price', 'cut_description']
+    fields = ['barber', 'cut_price', 'cut_description', 'cut_photo']
 
 
 class FormUser(UserChangeForm):
