@@ -15,6 +15,7 @@ from utils import send_email, get_available_times_for_day, is_working_day
 
 from barbershop.permissions import PermissionBarber
 from users.models import UserProfile
+from prices.models import Prices
 from .serializers import CompanysSerializers, SchedulesSerializer, DaysSerializer, SchedulesDaysSerializer
 from .models import Company, Schedules, Days, SchedulesDays
 
@@ -284,7 +285,8 @@ class SchedulesViewset(ModelViewSet):
                 day_id=data['day_id'],
                 date=data_obj,
                 chosen_barber_id=data['chosen_barber_id'],
-                confirmed_by_barber=data['confirmed_by_barber']
+                confirmed_by_barber=data['confirmed_by_barber'],
+                chosen_cut_id=data['chosen_cut_id']
             )
 
             valid_data = datetime.strptime(data_str, '%d/%m/%Y %H:%M').time()
