@@ -278,7 +278,7 @@ class SchedulesViewset(ModelViewSet):
             if schedules_existing:
                 return Response({'message': 'já existe um agendamento para este horário!'},
                                 status=status.HTTP_400_BAD_REQUEST)
-
+            chosen_cut = Prices.objects.get(id=data['chosen_cut_id'])
             schedule = Schedules.objects.create(
                 barbershop_id=data['barbershop_id'],
                 client_id=user.id,
@@ -286,14 +286,14 @@ class SchedulesViewset(ModelViewSet):
                 date=data_obj,
                 chosen_barber_id=data['chosen_barber_id'],
                 confirmed_by_barber=data['confirmed_by_barber'],
-                chosen_cut_id=data['chosen_cut_id']
+                chosen_cut=chosen_cut
             )
 
-            valid_data = datetime.strptime(data_str, '%d/%m/%Y %H:%M').time()
+            valid_data = data_obj.time()
             if (
-                    valid_data <= schedule.day.start or valid_data >= schedule.day.end_time
-                    or valid_data >= schedule.day.pause_time and valid_data < schedule.day.end_pause_time
-                    or valid_data == schedule.day.pause_time or valid_data < schedule.day.end_pause_time
+                    valid_data < schedule.day.start or valid_data > schedule.day.end_time or
+                    (schedule.day.pause_time and valid_data >= schedule.day.pause_time and valid_data < schedule.day.end_pause_time) or
+                    valid_data == schedule.day.pause_time or valid_data < schedule.day.end_pause_time
             ):
                 return Response({
                     'message': 'Este horário não está disponivel para agendamento!'
@@ -312,7 +312,7 @@ class SchedulesViewset(ModelViewSet):
 
             return Response({'message': 'Agendamento feito com sucesso'}, status=status.HTTP_200_OK)
         except Exception as error:
-            sentry_sdk.capture_exception(error)
+            print(error)
             return Response({'message': 'Erro ao marcar agendamento'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=False, methods=['PATCH'], permission_classes=[IsAuthenticated])
