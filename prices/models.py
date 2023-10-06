@@ -3,7 +3,6 @@ from django.db import models
 
 
 class Prices(models.Model):
-    barber = models.ForeignKey('users.Barbers', verbose_name='Barbeiro', on_delete=models.CASCADE, null=True, blank=True)
     cut_price = models.FloatField('Preço do corte')
     cut_description = models.CharField('Tipo do corte')
     cut_photo = models.ImageField('Foto do corte', default='')
