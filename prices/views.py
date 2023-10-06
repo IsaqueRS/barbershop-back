@@ -7,8 +7,6 @@ from .serializers import PricesSerializers
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import action
 
-from users.utils import get_unique_or_none
-from users.models import UserProfile
 
 class PricesViewSet(ModelViewSet):
     queryset = Prices.objects.all()
