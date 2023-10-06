@@ -52,9 +52,6 @@ class BarbersAdmin(admin.ModelAdmin):
     list_display_links = ['company', 'barber']
     search_fields = ['barber__username']
     form = FormBarber
-    inlines = [
-        PricesInline
-    ]
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == 'barber':
