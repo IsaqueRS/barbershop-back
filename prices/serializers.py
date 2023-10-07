@@ -6,4 +6,3 @@ class PricesSerializers(serializers.ModelSerializer):
     class Meta:
         model = Prices
         fields = '__all__'
-        depth = 1
