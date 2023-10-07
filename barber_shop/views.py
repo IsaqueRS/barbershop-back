@@ -279,8 +279,13 @@ class SchedulesViewset(ModelViewSet):
                 return Response({'message': 'já existe um agendamento para este horário!'},
                                 status=status.HTTP_400_BAD_REQUEST)
 
-            chosen_cut = Prices.objects.get(id=data['chosen_cut_id'])
-            if chosen_cut == None or chosen_cut == '' or chosen_cut == ' ':
+            try:
+                chosen_cut = Prices.objects.get(id=data['chosen_cut_id'])
+                if chosen_cut == None or chosen_cut == '' or chosen_cut == ' ':
+                    return Response({'message': 'Preencha o campo de escolher tipo de corte!'},
+                                    status=status.HTTP_400_BAD_REQUEST)
+            except Exception as error:
+                print(error)
                 return Response({'message': 'Escolha um tipo de corte disponivel!'},
                                 status=status.HTTP_400_BAD_REQUEST)
 
