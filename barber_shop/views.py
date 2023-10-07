@@ -395,6 +395,17 @@ class SchedulesViewset(ModelViewSet):
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=False, methods=['GET'], permission_classes=[IsAuthenticated])
+    def list_all_schedules_day(self, request):
+        try:
+            now = datetime.now()
+            schedules_days = SchedulesDays.objects.filter(data__gte=now)
+            serializer = SchedulesDaysSerializer(schedules_days, many=True)
+            return Response({'message': 'Dias agendados', 'schedules_days': serializer.data}, status=status.HTTP_200_OK)
+        except Exception as error:
+            print(error)
+            return Response({'message': 'Erro ao listar dias agendados'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['GET'], permission_classes=[IsAuthenticated])
     def schedules_days_by_id(self, request):
         params = request.query_params
         try:
