@@ -35,8 +35,8 @@ class PricesViewSet(ModelViewSet):
     def update_price(self, request):
         user = request.user
         data = request.data
+        price_id = data['price_id']
         try:
-            price_id = data['price_id']
             if user.type == 'dono':
                 price = Prices.objects.get(id=price_id)
                 if user in price.barber.company.owner.all():
