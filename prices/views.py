@@ -126,3 +126,13 @@ class PricesViewSet(ModelViewSet):
             print(error)
             return Response({'message': 'Erro ao listar preços!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+    @action(detail=False, methods=['GET'], permission_classes=[IsAuthenticated])
+    def search_cut(self, request):
+        params = request.query_params
+        try:
+            prices = Prices.objects.filter(cut_description__iexact=params['cut_description'])
+            serializer = PricesSerializers(prices, many=True)
+            return Response({'message': 'Preços encontrados', 'prices': serializer.data}, status=status.HTTP_200_OK)
+        except Exception as error:
+            print(error)
+            return Response({'message': 'Erro ao procurar corte'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
