@@ -357,7 +357,7 @@ class SchedulesViewset(ModelViewSet):
     def list_all_schedules(self, request):
         try:
             now = datetime.now()
-            schedules = Schedules.objects.filter(confirmed_by_barber=True, user_canceled=False).exclude(date__lt=now)
+            schedules = Schedules.objects.filter(confirmed_by_barber=True, user_canceled=False).exclude(date__lte=now)
             serializer = SchedulesSerializer(schedules, many=True)
             return Response({'message': 'Sucesso', 'schedules': serializer.data}, status=status.HTTP_200_OK)
         except Exception as error:
