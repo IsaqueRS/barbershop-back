@@ -234,9 +234,8 @@ class CompanysViewSet(ModelViewSet):
 
     @action(detail=False, methods=['GET'], permission_classes=[IsAuthenticated])
     def list_days(self, request):
-        params = request.query_params
         try:
-            company_days = Days.objects.filter(company_id=params['company_id'], working_day=True)
+            company_days = Days.objects.filter(working_day=True)
             serializer = DaysSerializer(company_days, many=True)
             return Response({'message': 'Sucesso', 'company_days': serializer.data}, status=status.HTTP_200_OK)
         except Exception as error:
@@ -386,7 +385,7 @@ class SchedulesViewset(ModelViewSet):
             now = datetime.now()
             schedules = Schedules.objects.filter(
                 Q(chosen_barber_id=user.id) | Q(client_id=user.id)
-            ).exclude(date__lt=now)
+            ).exclude(date__lte=now)
             serializer = SchedulesSerializer(schedules, many=True)
             return Response({'message': 'Cortes agendados para você', 'schedules': serializer.data})
         except Exception as error:
@@ -424,7 +423,7 @@ class SchedulesViewset(ModelViewSet):
     def days_by_company(self, request):
         params = request.query_params
         try:
-            days = Days.objects.filter(company__id=params['company_id'])
+            days = Days.objects.filter(company__id=params['company_id'], working_day=True)
             serializer = DaysSerializer(days, many=True)
             return Response({'message': 'Dias de funcionamento da barbearia', 'days': serializer.data})
         except Exception as error:
