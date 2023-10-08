@@ -40,7 +40,7 @@ class FormSchedules(forms.ModelForm):
 
 
 class SchedulesAdmin(admin.ModelAdmin):
-    list_display = ['id', 'client', 'chosen_barber', 'day', 'confirmed_by_barber', 'user_canceled']
+    list_display = ['client', 'chosen_barber', 'day', 'chosen_cut', 'confirmed_by_barber', 'user_canceled']
     list_filter = ['confirmed_by_barber', 'day', 'user_canceled']
     form = FormSchedules
 
