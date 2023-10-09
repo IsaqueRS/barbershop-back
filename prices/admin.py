@@ -8,6 +8,7 @@ class PricesAdmin(admin.ModelAdmin):
     )
     list_display = ['id', 'cut_price', 'cut_description']
     list_display_links = ['id']
+    search_fields = ['cut_description']
 
 
 admin.site.register(Prices, PricesAdmin)
