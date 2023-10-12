@@ -260,7 +260,7 @@ class CompanysViewSet(ModelViewSet):
             return Response({'message': 'Erro ao buscar por dia'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-class SchedulesViewset(ModelViewSet):
+class SchedulesViewSet(ModelViewSet):
     queryset = Schedules.objects.all()
     serializer_class = SchedulesSerializer
     permission_classes = [IsAuthenticated]
@@ -280,7 +280,8 @@ class SchedulesViewset(ModelViewSet):
 
             try:
                 chosen_cut = Prices.objects.get(id=data['chosen_cut_id'])
-                if chosen_cut == None or chosen_cut == '' or chosen_cut == ' ':
+                invalids_choices = [None, '', ' ']
+                if chosen_cut in invalids_choices:
                     return Response({'message': 'Preencha o campo de escolher tipo de corte!'},
                                     status=status.HTTP_400_BAD_REQUEST)
             except Exception as error:

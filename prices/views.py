@@ -107,6 +107,7 @@ class PricesViewSet(ModelViewSet):
         sort_by = request.query_params.get('sort_by')
         try:
             prices = Prices.objects.filter()
+            empty_params = [None, '', ' ']
             if sort_by == 'price_asc':
                 price = prices.order_by('cut_price')
                 serializer = PricesSerializers(price, many=True)
@@ -117,7 +118,7 @@ class PricesViewSet(ModelViewSet):
                 serializer = PricesSerializers(price, many=True)
                 return Response({'message': 'Preços encontrados', 'prices': serializer.data}, status=status.HTTP_200_OK)
 
-            elif sort_by == '' or ' ' or None:
+            elif sort_by in empty_params:
                 price = prices.order_by('id')
                 serializer = PricesSerializers(price, many=True)
                 return Response({'message': 'Preços encontrados', 'prices': serializer.data}, status=status.HTTP_200_OK)
