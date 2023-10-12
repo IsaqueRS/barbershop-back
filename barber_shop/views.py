@@ -280,7 +280,7 @@ class SchedulesViewSet(ModelViewSet):
 
             try:
                 chosen_cut = Prices.objects.get(id=data['chosen_cut_id'])
-                invalids_chosen = [None, '', ' ']
+                invalids_choices = [None, '', ' ']
                 if chosen_cut in invalids_chosen:
                     return Response({'message': 'Preencha o campo de escolher tipo de corte!'},
                                     status=status.HTTP_400_BAD_REQUEST)
