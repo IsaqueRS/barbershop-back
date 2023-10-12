@@ -260,7 +260,7 @@ class CompanysViewSet(ModelViewSet):
             return Response({'message': 'Erro ao buscar por dia'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-class SchedulesViewset(ModelViewSet):
+class SchedulesViewSet(ModelViewSet):
     queryset = Schedules.objects.all()
     serializer_class = SchedulesSerializer
     permission_classes = [IsAuthenticated]
