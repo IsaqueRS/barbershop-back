@@ -25,7 +25,7 @@ class Company(models.Model):
     name = models.CharField("Nome da Barbearia", max_length=155, null=False, blank=False)
     logo = models.ImageField('Logo da barbearia', blank=True, null=True)
     phone = models.CharField("Telefone", max_length=15)
-    cep = models.CharField("Cep", max_length=12,)
+    cep = models.CharField("Cep", max_length=12)
     city = models.CharField("Cidade", max_length=60)
     neighborhood = models.CharField("Bairro", max_length=60)
     state = models.CharField("Estado", max_length=60, default="")
