@@ -44,7 +44,7 @@ class CompanysViewSet(ModelViewSet):
                 city=data['city'],
                 neighborhood=data['neighborhood'],
                 state=data['state'],
-                street=data['cep'],
+                street=data['street'],
                 instagram_link=data['instagram_link'],
                 facebook_link=data['facebook_link'],
                 business_hours=business_hours
