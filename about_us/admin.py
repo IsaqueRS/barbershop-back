@@ -7,6 +7,7 @@ class AboutUsAdmin(admin.ModelAdmin):
         ('Informações', {'fields': ('name', 'developed_by', 'description')}),
         ('Contato', {'fields': ('email', 'phone')})
     )
+    list_display = ['name', 'developed_by', 'email', 'phone']
 
 
 class TermsOfUseAdmin(admin.ModelAdmin):
