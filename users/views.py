@@ -297,7 +297,7 @@ class BarberViewSet(ModelViewSet):
                     password=random_password,
                     email_barber=data['email_barber']
                 )
-                subject = 'BarberShop - Notificação de novo barbeiro registrado'
+                subject = 'BarberShop - Notificação de registro em barbearia'
                 message = (
                             f'O usuário {user.username} cadastrou você na barbearia {user.owner_company}. '
                             f'Sua senha de acesso é {random_password}'
