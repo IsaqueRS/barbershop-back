@@ -278,7 +278,7 @@ class BarberViewSet(ModelViewSet):
                     UserProfile.objects.filter(email__iexact=data['email_barber']) or
                     Barbers.objects.filter(email_barber__iexact=data['email_barber'])
             ):
-                return Response({'message': 'Um usuário com este email já existe.'}, status=status.HTTP_409_CONFLICT)
+                return Response({'message': 'Um usuário/barbeiro com este email já existe.'}, status=status.HTTP_409_CONFLICT)
 
             if type_user.type != 'barbeiro':
                 return Response({'message': 'Somente usuários do tipo barbeiro podem ser registrados'},
@@ -413,8 +413,10 @@ class BarberViewSet(ModelViewSet):
             type_user = UserProfile.objects.get(id=barber_id)
             email = data['email_barber']
 
-            if UserProfile.objects.filter(email__iexact=email):
-                return Response({'message': 'Um usuário com este email já existe.'}, status=status.HTTP_409_CONFLICT)
+            if (
+                    UserProfile.objects.filter(email__iexact=email) or Barbers.objects.filter(email_barber__iexact=email)
+            ):
+                return Response({'message': 'Um usuário/barbeiro com este email já existe.'}, status=status.HTTP_409_CONFLICT)
 
             if type_user.type != 'barbeiro':
                 return Response({'message': 'Somente usuários do tipo barbeiro podem ser registrados'},
