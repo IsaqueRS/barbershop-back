@@ -413,24 +413,34 @@ class BarberViewSet(ModelViewSet):
             type_user = UserProfile.objects.get(id=barber_id)
             email = data['email_barber']
 
-            if (
-                    UserProfile.objects.filter(email__iexact=email) or Barbers.objects.filter(email_barber__iexact=email)
-            ):
-                return Response({'message': 'Um usuário/barbeiro com este email já existe.'}, status=status.HTTP_409_CONFLICT)
-
             if type_user.type != 'barbeiro':
                 return Response({'message': 'Somente usuários do tipo barbeiro podem ser registrados'},
                                 status=status.HTTP_400_BAD_REQUEST)
 
             if user.type == 'dono':
-                Barbers.objects.filter(pk=data['id']).update(
-                    barber_id=data['barber_id'],
-                    company_id=data['company_id'],
-                    profile_photo=data.get('profile_photo', None),
-                    email_barber=email
-                )
+                barber = Barbers.objects.get(pk=data['id'])
 
-                return Response({'message': 'Barbeiro atualizado com sucesso'}, status=status.HTTP_200_OK)
+                if barber.email_barber != email:
+                    if (
+                        UserProfile.objects.filter(email__iexact=email) or
+                            Barbers.objects.filter(email_barber__iexact=email)
+                    ):
+                        return Response({'message': 'Um usuário/barbeiro com este email já existe.'},
+                                        status=status.HTTP_409_CONFLICT)
+
+                    barber.barber_id = data['barber_id']
+                    barber.company_id = data['company_id']
+                    barber.profile_photo = data.get('profile_photo', None)
+                    barber.email_barber = email
+                    barber.save()
+                    return Response({'message': 'Barbeiro atualizado com sucesso'}, status=status.HTTP_200_OK)
+
+                elif barber.email_barber == email:
+                    barber.barber_id = data['barber_id']
+                    barber.company_id = data['company_id']
+                    barber.profile_photo = data.get('profile_photo', None)
+                    barber.save()
+                    return Response({'message': 'Barbeiro atualizado com sucesso'}, status=status.HTTP_200_OK)
             else:
                 return Response({'message': 'Apenas o dono da barbearia pode atualizar barbeiros'},
                                 status=status.HTTP_401_UNAUTHORIZED)
