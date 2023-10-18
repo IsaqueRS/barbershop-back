@@ -428,16 +428,12 @@ class BarberViewSet(ModelViewSet):
                         return Response({'message': 'Um usuário/barbeiro com este email já existe.'},
                                         status=status.HTTP_409_CONFLICT)
 
-                    random_password = generate_random_password()
                     barber.barber_id = data['barber_id']
                     barber.company_id = data['company_id']
                     barber.profile_photo = data.get('profile_photo', None)
                     barber.email_barber = email
-                    barber.password = random_password
                     barber.save()
-                    return Response({
-                        'message': 'Barbeiro atualizado com sucesso, verifique seu email para obter sua senha de acesso'
-                    }, status=status.HTTP_200_OK)
+                    return Response({'message': 'Barbeiro atualizado com sucesso'}, status=status.HTTP_200_OK)
 
                 elif barber.email_barber == email:
                     barber.barber_id = data['barber_id']
