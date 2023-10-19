@@ -44,7 +44,7 @@ class FormBarber(UserChangeForm):
 
         request = self.Meta.formfield_callback.keywords['request']
 
-        if request.user.type == 'dono':
+        if request.user.type != 'dono':
             self.fields['company'].disabled = True
             self.fields['barber'].disabled = True
             self.fields['password'].disabled = True
