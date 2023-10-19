@@ -42,6 +42,15 @@ class FormBarber(UserChangeForm):
     def __init__(self, *args, **kwargs):
         super(FormBarber, self).__init__(*args, **kwargs)
 
+        request = self.Meta.formfield_callback.keywords['request']
+
+        if request.user.type == 'dono':
+            self.fields['company'].disabled = True
+            self.fields['barber'].disabled = True
+            self.fields['password'].disabled = True
+            self.fields['email_barber'].disabled = True
+            self.fields['profile_photo'].disabled = True
+
 
 class BarbersAdmin(admin.ModelAdmin):
     fieldsets = (
