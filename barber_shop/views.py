@@ -320,7 +320,9 @@ class SchedulesViewSet(ModelViewSet):
             message = f'O cliente {user.username} fez um novo agendamento para o dia {schedule.day}/{date_msg}'
             send_email(instance_email.email, subject, message)
 
-            return Response({'message': 'Agendamento feito com sucesso'}, status=status.HTTP_200_OK)
+            return Response({
+                'message': 'Agendamento feito com sucesso, aguade a corfirmação do babeiro'
+            }, status=status.HTTP_200_OK)
         except Exception as error:
             print(error)
             return Response({'message': 'Erro ao marcar agendamento'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
