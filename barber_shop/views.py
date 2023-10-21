@@ -321,7 +321,7 @@ class SchedulesViewSet(ModelViewSet):
             send_email(instance_email.email, subject, message)
 
             return Response({
-                'message': 'Agendamento feito com sucesso, aguade a corfirmação do babeiro'
+                'message': 'Agendamento feito com sucesso, aguade a corfirmação do barbeiro'
             }, status=status.HTTP_200_OK)
         except Exception as error:
             print(error)
