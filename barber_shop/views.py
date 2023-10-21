@@ -279,11 +279,9 @@ class SchedulesViewSet(ModelViewSet):
                                 status=status.HTTP_400_BAD_REQUEST)
 
             try:
-                chosen_cut = Prices.objects.get(id=data['chosen_cut_id'])
-                invalids_choices = [None, '', ' ']
-                if chosen_cut in invalids_choices:
-                    return Response({'message': 'Preencha o campo de escolher tipo de corte!'},
-                                    status=status.HTTP_400_BAD_REQUEST)
+                choose_cut = data['chosen_cut_id']
+                chosen_cut = Prices.objects.get(id=choose_cut)
+
             except Exception as error:
                 print(error)
                 return Response({'message': 'Escolha um tipo de corte disponivel!'},
@@ -321,7 +319,7 @@ class SchedulesViewSet(ModelViewSet):
             send_email(instance_email.email, subject, message)
 
             return Response({
-                'message': 'Agendamento feito com sucesso, aguade a corfirmação do barbeiro'
+                'message': 'Agendamento feito com sucesso, aguarde a confirmação do barbeiro'
             }, status=status.HTTP_200_OK)
         except Exception as error:
             print(error)
