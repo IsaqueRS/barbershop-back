@@ -12,8 +12,8 @@ from barber_shop.models import Company
 from users.models import UserProfile, Barbers
 from users.serializers import UserSerializer, BarbersSerializer
 
-from utils import generate_random_password, send_email
-from .utils import get_unique_or_none
+from utils import send_email
+from .utils import get_unique_or_none, generate_random_password
 
 
 class UserViewset(ModelViewSet):

@@ -6,8 +6,6 @@ from email.mime.text import MIMEText
 
 import sentry_sdk
 import smtplib
-import secrets
-from django.core.mail import send_mail
 
 import holidays
 
@@ -80,7 +78,3 @@ def is_working_day(day, date):
     )
 
 
-def generate_random_password():
-    alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-    password = ''.join(secrets.choice(alphabet) for i in range(12))
-    return password
