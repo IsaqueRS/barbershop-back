@@ -281,7 +281,6 @@ class SchedulesViewSet(ModelViewSet):
             try:
                 choose_cut = data['chosen_cut_id']
                 chosen_cut = Prices.objects.get(id=choose_cut)
-
             except Exception as error:
                 print(error)
                 return Response({'message': 'Escolha um tipo de corte disponivel!'},
@@ -455,7 +454,7 @@ class SchedulesViewSet(ModelViewSet):
             now = datetime.now()
             schedules = SchedulesDays.objects.filter(
                 schedule__barbershop__id=params['company_id']
-            ).exclude(data__lt=now).order_by('data')
+            ).exclude(data__lte=now).order_by('data')
             serializer = SchedulesDaysSerializer(schedules, many=True)
             return Response({'message': 'Dias com cortes agendados até o momento', 'schedules': serializer.data})
         except Exception as error:
