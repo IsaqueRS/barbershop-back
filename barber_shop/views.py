@@ -281,7 +281,6 @@ class SchedulesViewSet(ModelViewSet):
             try:
                 choose_cut = data['chosen_cut_id']
                 chosen_cut = Prices.objects.get(id=choose_cut)
-
             except Exception as error:
                 print(error)
                 return Response({'message': 'Escolha um tipo de corte disponivel!'},
