@@ -118,6 +118,16 @@ class PricesViewSet(ModelViewSet):
                 serializer = PricesSerializers(price, many=True)
                 return Response({'message': 'Preços encontrados', 'prices': serializer.data}, status=status.HTTP_200_OK)
 
+            elif sort_by == 'description':
+                price = prices.order_by('cut_description')
+                serializer = PricesSerializers(price, many=True)
+                return Response({'message': 'Preços encontrados', 'prices': serializer.data}, status=status.HTTP_200_OK)
+
+            elif sort_by == 'description_desc':
+                price = prices.order_by('-cut_description')
+                serializer = PricesSerializers(price, many=True)
+                return Response({'message': 'Preços encontrados', 'prices': serializer.data}, status=status.HTTP_200_OK)
+
             elif sort_by in empty_params:
                 price = prices.order_by('id')
                 serializer = PricesSerializers(price, many=True)
